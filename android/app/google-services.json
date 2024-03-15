@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "328861416018",
+    "project_id": "jarvis-tn-2",
+    "storage_bucket": "jarvis-tn-2.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:328861416018:android:fdb4e63dd6ee9e53ef3d8b",
+        "android_client_info": {
+          "package_name": "com.example.jarvis_2"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBwP-IjkNiD9U5_bZgWbOwQJ6eYenrws6w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

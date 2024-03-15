@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
+import '../../abstracts/page.dart';
 
-class NotesPage extends StatefulWidget {
+class NotesPage extends BasePage {
+  @override
+  String get title => 'Notes';
+  @override
+  IconData get icon => Icons.note;
+
   const NotesPage({super.key});
 
   @override
