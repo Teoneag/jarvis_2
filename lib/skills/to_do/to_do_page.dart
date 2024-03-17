@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:jarvis_2/skills/to_do/utils/time_utils.dart';
 
 import '/abstracts/page.dart';
 import './dialogs/add_task_dialog.dart';
@@ -73,12 +74,15 @@ class _ToDoPageState extends State<ToDoPage> {
                 Task task = snapshot.data![index];
                 return ListTile(
                   title: Text(task.title),
-                  subtitle: Text(task.description ?? ''),
-                  leading: Icon(task.priority == Priority.p0
-                      ? Icons.error_outline
-                      : task.priority == Priority.p1
-                          ? Icons.warning_amber_outlined
-                          : Icons.check_circle_outline),
+                  // subtitle:
+                  //     formatDateTime(task.startDateTime, task.isStartTime),
+                  leading: GestureDetector(
+                    onTap: () {},
+                    child: Icon(
+                      Icons.circle_outlined,
+                      color: task.priority.color,
+                    ),
+                  ),
                 );
               },
             );

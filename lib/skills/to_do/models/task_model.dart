@@ -1,38 +1,30 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:jarvis_2/skills/to_do/models/time_model.dart';
 import '/skills/to_do/enums/priority_enum.dart';
 
 class TaskFields {
   static const String title = 'title';
   static const String description = 'description';
-  static const String startTime = 'startTime';
-  static const String endTime = 'endTime';
+  static const String isDone = 'isDone';
   static const String priority = 'priority';
 }
 
 class Task {
-  String id;
+  String id; // firebase document id
   String title;
-  String? description;
-  DateTime? startTime;
-  DateTime? endTime;
+  String description;
+  bool isDone;
   Priority priority;
+  Time time;
 
   Task({
-    required this.id,
+    this.id = '',
     required this.title,
-    this.description,
-    this.startTime,
-    this.endTime,
+    this.description = '',
+    this.isDone = false,
     this.priority = Priority.none,
-  });
-
-  Task.create({
-    required this.title,
-    this.description,
-    this.startTime,
-    this.endTime,
-    this.priority = Priority.none,
-  }) : id = '';
+    time,
+  }) : time = time ?? Time();
 
   factory Task.fromFirestore(DocumentSnapshot doc) {
     var data = doc.data() as Map<String, dynamic>;
@@ -41,9 +33,9 @@ class Task {
       id: doc.id,
       title: data[TaskFields.title],
       description: data[TaskFields.description],
-      startTime: (data[TaskFields.startTime] as Timestamp?)?.toDate(),
-      endTime: (data[TaskFields.endTime] as Timestamp?)?.toDate(),
-      priority: Priority.values[data['priority'] ?? Priority.none.index],
+      isDone: data[TaskFields.isDone],
+      priority: Priority.values[data[TaskFields.priority]],
+      time: Time.fromFirestore(data),
     );
   }
 
@@ -51,9 +43,9 @@ class Task {
     return {
       TaskFields.title: title,
       TaskFields.description: description,
-      TaskFields.startTime: startTime,
-      TaskFields.endTime: endTime,
+      TaskFields.isDone: isDone,
       TaskFields.priority: priority.index,
+      ...time.toFirestore(),
     };
   }
 }

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:flutter_time_picker_spinner/flutter_time_picker_spinner.dart';
 
 import '../firestore/firestore_methods.dart';
 import '../models/task_model.dart';
@@ -15,8 +15,8 @@ class AddTaskDialog extends StatefulWidget {
 class _AddTaskDialogState extends State<AddTaskDialog> {
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
-  final _titleFocusNode = FocusNode();
-  final _descriptionFocusNode = FocusNode();
+  String _startDate = '';
+  String _endDate = '';
   Priority _selectedPriority = Priority.none;
   final _formKey = GlobalKey<FormState>();
 
@@ -24,17 +24,17 @@ class _AddTaskDialogState extends State<AddTaskDialog> {
   void dispose() {
     _titleController.dispose();
     _descriptionController.dispose();
-    _titleFocusNode.dispose();
-    _descriptionFocusNode.dispose();
     super.dispose();
   }
 
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
-      Task newTask = Task.create(
+      Task newTask = Task(
         title: _titleController.text.trim(),
         description: _descriptionController.text.trim(),
         priority: _selectedPriority,
+        // startDateTime: _startDate,
+        // endDateTime: _endDate,
       );
       FirestoreMethods.addTask(newTask).then((taskId) {
         if (taskId.isNotEmpty) {
@@ -43,8 +43,6 @@ class _AddTaskDialogState extends State<AddTaskDialog> {
           _descriptionController.clear();
         }
       });
-    } else {
-      _titleFocusNode.requestFocus();
     }
   }
 
@@ -55,14 +53,13 @@ class _AddTaskDialogState extends State<AddTaskDialog> {
       content: SingleChildScrollView(
         child: Form(
           key: _formKey,
-          child: ListBody(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
               TextFormField(
                 controller: _titleController,
-                focusNode: _titleFocusNode,
                 autofocus: true,
                 decoration: const InputDecoration(hintText: 'Title'),
-                onFieldSubmitted: (_) => _submitForm(),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
                     return 'Title cannot be empty';
@@ -70,35 +67,45 @@ class _AddTaskDialogState extends State<AddTaskDialog> {
                   return null;
                 },
               ),
-              TextFormField(
+              TextField(
                 controller: _descriptionController,
-                focusNode: _descriptionFocusNode,
                 decoration: const InputDecoration(hintText: 'Description'),
-                onFieldSubmitted: (_) => _submitForm(),
               ),
-              Focus(
-                onKey: (FocusNode node, RawKeyEvent event) {
-                  if (event is RawKeyDownEvent &&
-                      event.logicalKey == LogicalKeyboardKey.enter) {
-                    _submitForm();
-                    return KeyEventResult.handled;
-                  }
-                  return KeyEventResult.ignored;
+              DropdownButton<Priority>(
+                isExpanded: true,
+                value: _selectedPriority,
+                onChanged: (newValue) {
+                  setState(() {
+                    _selectedPriority = newValue ?? Priority.none;
+                  });
                 },
-                child: DropdownButton<Priority>(
-                  isExpanded: true,
-                  value: _selectedPriority,
-                  items: Priority.values
-                      .map((priority) => DropdownMenuItem(
-                            value: priority,
-                            child: Text(priority.toString().split('.').last),
-                          ))
-                      .toList(),
-                  onChanged: (Priority? newValue) {
-                    FocusScope.of(context).unfocus();
-                    setState(() {
-                      _selectedPriority = newValue ?? Priority.none;
-                    });
+                items: Priority.values
+                    .map((priority) => DropdownMenuItem(
+                          value: priority,
+                          child: Text(priority.toString().split('.').last),
+                        ))
+                    .toList(),
+              ),
+              const Row(
+                children: [
+                  IntrinsicWidth(
+                    child: TextField(),
+                  ),
+                  IntrinsicWidth(
+                    child: TextField(),
+                  ),
+                ],
+              ),
+              SizedBox(
+                width: 500,
+                child: CalendarDatePicker(
+                  initialDate: DateTime.now(),
+                  firstDate: DateTime(2000),
+                  lastDate: DateTime(2100),
+                  onDateChanged: (newDate) {
+                    // setState(() {
+                    //   _selectedStartDate = newDate;
+                    // });
                   },
                 ),
               ),

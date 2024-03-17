@@ -14,7 +14,7 @@ extension PriorityColorExtension on Priority {
       case Priority.p1:
         return Colors.orange;
       default:
-        return Colors.transparent;
+        return Colors.grey;
     }
   }
 }
