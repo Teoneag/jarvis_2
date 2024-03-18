@@ -21,6 +21,22 @@ class ToDoPage extends BasePage {
 
 class _ToDoPageState extends State<ToDoPage> {
   bool _isDialogOpen = false;
+  bool _isSyncing = false;
+  Map<String, Task> _tasks = {};
+
+  Future<void> _syncTasks() async {
+    if (_isSyncing) return;
+    setState(() => _isSyncing = true);
+    try {
+      _tasks = await Firestore.getTasks();
+      setState(() => _isSyncing = false);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Error syncing tasks: $e'),
+      ));
+      setState(() => _isSyncing = false);
+    }
+  }
 
   void _showAddTaskDialog() {
     if (_isDialogOpen) {
@@ -30,7 +46,7 @@ class _ToDoPageState extends State<ToDoPage> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return const AddTaskDialog();
+        return AddTaskDialog(_tasks);
       },
     ).then((_) => setState(() => _isDialogOpen = false));
   }
@@ -39,6 +55,7 @@ class _ToDoPageState extends State<ToDoPage> {
   void initState() {
     super.initState();
     RawKeyboard.instance.addListener(_handleKeyPress);
+    _syncTasks();
   }
 
   @override
@@ -56,7 +73,8 @@ class _ToDoPageState extends State<ToDoPage> {
 
   void _deleteTask(String taskId) async {
     try {
-      await FirestoreMethods.deleteTask(taskId);
+      _tasks.remove(taskId);
+      await Firestore.deleteTask(taskId);
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         content: Text('Task deleted successfully'),
       ));
@@ -71,23 +89,11 @@ class _ToDoPageState extends State<ToDoPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: StreamBuilder<List<Task>>(
-        stream: FirestoreMethods.getTasksStream(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('No tasks found'));
-          } else {
-            return ListView.builder(
-              itemCount: snapshot.data!.length,
-              itemBuilder: (context, index) {
-                return taskListTile(snapshot.data![index], _deleteTask);
-              },
-            );
-          }
+      body: ListView.builder(
+        itemCount: _tasks.length,
+        itemBuilder: (BuildContext context, int index) {
+          final task = _tasks.values.elementAt(index);
+          return taskListTile(task, _deleteTask);
         },
       ),
       floatingActionButton: FloatingActionButton(

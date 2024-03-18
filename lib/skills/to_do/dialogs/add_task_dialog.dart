@@ -6,7 +6,8 @@ import '../models/task_model.dart';
 import '../enums/priority_enum.dart';
 
 class AddTaskDialog extends StatefulWidget {
-  const AddTaskDialog({Key? key}) : super(key: key);
+  final Map<String, Task> tasks;
+  const AddTaskDialog(this.tasks, {Key? key}) : super(key: key);
 
   @override
   State<AddTaskDialog> createState() => _AddTaskDialogState();
@@ -37,8 +38,9 @@ class _AddTaskDialogState extends State<AddTaskDialog> {
         _descriptionController.text.trim(),
         _selectedPriority,
       );
-      FirestoreMethods.addTask(newTask).then((taskId) {
+      Firestore.addTask(newTask).then((taskId) {
         if (taskId.isNotEmpty) {
+          widget.tasks.addAll({taskId: newTask});
           Navigator.of(context).pop();
           _titleController.clear();
           _descriptionController.clear();
@@ -50,7 +52,6 @@ class _AddTaskDialogState extends State<AddTaskDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Add a new task'),
       content: Form(
         key: _formKey,
         child: Column(

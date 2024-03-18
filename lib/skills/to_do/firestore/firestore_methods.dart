@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '/skills/to_do/models/task_model.dart';
 
-class FirestoreMethods {
+class Firestore {
   static final _firestore = FirebaseFirestore.instance;
   static const _tasks = 'tasks';
 
@@ -51,24 +51,17 @@ class FirestoreMethods {
     }
   }
 
-  static Future<List<Task>> getTasks() async {
+  static Future<Map<String, Task>> getTasks() async {
     try {
       QuerySnapshot querySnapshot = await _firestore.collection(_tasks).get();
-      List<Task> tasks = querySnapshot.docs.map((doc) {
-        return Task.fromFirestore(doc);
-      }).toList();
+      Map<String, Task> tasks = {};
+      for (var doc in querySnapshot.docs) {
+        tasks[doc.id] = Task.fromFirestore(doc);
+      }
       return tasks;
     } catch (e) {
       print(e);
-      return [];
+      return {};
     }
-  }
-
-  static Stream<List<Task>> getTasksStream() {
-    return _firestore.collection(_tasks).snapshots().map((snapshot) {
-      return snapshot.docs.map((doc) {
-        return Task.fromFirestore(doc);
-      }).toList();
-    });
   }
 }

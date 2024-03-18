@@ -5,7 +5,7 @@ import 'package:jarvis_2/skills/to_do/models/task_model.dart';
 
 Widget taskListTile(Task task, Function deleteTask) => ListTile(
       title: Text(task.title),
-      subtitle: dateToShortWidget(task.time),
+      subtitle: timeToShortWidget(task.time),
       leading: IconButton(
         icon: Icon(
           Icons.circle_outlined,

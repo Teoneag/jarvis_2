@@ -24,9 +24,15 @@ class Time {
   factory Time.fromFirestore(Map<String, dynamic> data) {
     return Time(
       start: data[TimeField.startDateTime]?.toDate(),
-      plannedDuration: data[TimeField.plannedDuration],
-      actualDuration: data[TimeField.actualDuration],
-      reccurenceGap: data[TimeField.reccuranceGap],
+      plannedDuration: data[TimeField.plannedDuration] != null
+          ? Duration(seconds: data[TimeField.plannedDuration])
+          : null,
+      actualDuration: data[TimeField.actualDuration] != null
+          ? Duration(seconds: data[TimeField.actualDuration])
+          : null,
+      reccurenceGap: data[TimeField.reccuranceGap] != null
+          ? Duration(seconds: data[TimeField.reccuranceGap])
+          : null,
       toOrder: data[TimeField.toOrder],
     );
   }
@@ -41,9 +47,9 @@ class Time {
   Map<String, dynamic> toFirestore() {
     return {
       TimeField.startDateTime: start,
-      TimeField.plannedDuration: plannedDuration,
-      TimeField.actualDuration: actualDuration,
-      TimeField.reccuranceGap: reccurenceGap,
+      TimeField.plannedDuration: plannedDuration?.inSeconds,
+      TimeField.actualDuration: actualDuration?.inSeconds,
+      TimeField.reccuranceGap: reccurenceGap?.inSeconds,
       TimeField.toOrder: toOrder,
     };
   }
