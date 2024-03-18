@@ -7,14 +7,14 @@ class TimeField {
 }
 
 class Time {
-  DateTime? startDateTime;
+  DateTime? start;
   Duration? plannedDuration;
   Duration? actualDuration;
   Duration? reccurenceGap;
   bool toOrder; // if it has no start time, only start date
 
   Time({
-    this.startDateTime,
+    this.start,
     this.plannedDuration,
     this.actualDuration,
     this.reccurenceGap,
@@ -23,7 +23,7 @@ class Time {
 
   factory Time.fromFirestore(Map<String, dynamic> data) {
     return Time(
-      startDateTime: data[TimeField.startDateTime],
+      start: data[TimeField.startDateTime]?.toDate(),
       plannedDuration: data[TimeField.plannedDuration],
       actualDuration: data[TimeField.actualDuration],
       reccurenceGap: data[TimeField.reccuranceGap],
@@ -32,7 +32,7 @@ class Time {
   }
 
   Time.copy(Time time)
-      : startDateTime = time.startDateTime,
+      : start = time.start,
         plannedDuration = time.plannedDuration,
         actualDuration = time.actualDuration,
         reccurenceGap = time.reccurenceGap,
@@ -40,7 +40,7 @@ class Time {
 
   Map<String, dynamic> toFirestore() {
     return {
-      TimeField.startDateTime: startDateTime,
+      TimeField.startDateTime: start,
       TimeField.plannedDuration: plannedDuration,
       TimeField.actualDuration: actualDuration,
       TimeField.reccuranceGap: reccurenceGap,

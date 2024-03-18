@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:jarvis_2/skills/to_do/utils/time_utils.dart';
 
+import '/skills/to_do/widgets/task_list_tile.dart';
 import '/abstracts/page.dart';
 import './dialogs/add_task_dialog.dart';
 import './models/task_model.dart';
-import './enums/priority_enum.dart';
 import './firestore/firestore_methods.dart';
 
 class ToDoPage extends BasePage {
@@ -55,11 +54,25 @@ class _ToDoPageState extends State<ToDoPage> {
     }
   }
 
+  void _deleteTask(String taskId) async {
+    try {
+      await FirestoreMethods.deleteTask(taskId);
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('Task deleted successfully'),
+      ));
+      setState(() {});
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Error deleting task: $e'),
+      ));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: FutureBuilder<List<Task>>(
-        future: FirestoreMethods.getTasks(),
+      body: StreamBuilder<List<Task>>(
+        stream: FirestoreMethods.getTasksStream(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -71,19 +84,7 @@ class _ToDoPageState extends State<ToDoPage> {
             return ListView.builder(
               itemCount: snapshot.data!.length,
               itemBuilder: (context, index) {
-                Task task = snapshot.data![index];
-                return ListTile(
-                  title: Text(task.title),
-                  // subtitle:
-                  //     formatDateTime(task.startDateTime, task.isStartTime),
-                  leading: GestureDetector(
-                    onTap: () {},
-                    child: Icon(
-                      Icons.circle_outlined,
-                      color: task.priority.color,
-                    ),
-                  ),
-                );
+                return taskListTile(snapshot.data![index], _deleteTask);
               },
             );
           }

@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '/firebase_options.dart';
 import 'abstracts/page.dart';
 import '/home_page.dart';
@@ -58,21 +59,36 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Jarvis 2'),
-      ),
-      body: IndexedStack(
-        index: _selectedIndex,
-        children: _pages,
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        onTap: _onItemTapped,
-        currentIndex: _selectedIndex,
-        items: _pages
-            .map((page) => BottomNavigationBarItem(
-                icon: Icon(page.icon), label: page.title))
-            .toList(),
+    return RawKeyboardListener(
+      focusNode: FocusNode(),
+      autofocus: true,
+      onKey: (event) {
+        if (event.isControlPressed) {
+          if (event.logicalKey == LogicalKeyboardKey.digit1) {
+            _onItemTapped(0);
+          } else if (event.logicalKey == LogicalKeyboardKey.digit2) {
+            _onItemTapped(1);
+          } else if (event.logicalKey == LogicalKeyboardKey.digit3) {
+            _onItemTapped(2);
+          }
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Jarvis 2'),
+        ),
+        body: IndexedStack(
+          index: _selectedIndex,
+          children: _pages,
+        ),
+        bottomNavigationBar: BottomNavigationBar(
+          onTap: _onItemTapped,
+          currentIndex: _selectedIndex,
+          items: _pages
+              .map((page) => BottomNavigationBarItem(
+                  icon: Icon(page.icon), label: page.title))
+              .toList(),
+        ),
       ),
     );
   }

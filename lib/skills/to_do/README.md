@@ -1,15 +1,17 @@
 ## ToDo
-- finish writing the dateTime options
-- implement the dateTime options
+- shouldn't flicker when adding a new task
+- make tom work
 - be able to move tasks
 - sort them automatically by date
-- shouldn't flicker when adding a new task
 - work for phone
   - TimePickerSpinner
 - if you hover over date you get more details
--ToPlan ToDo without due date
-Create/view page
+- ToPlan ToDo without due date or without due time
+- Create/view page
 
+## Done
+- finish writing the dateTime options
+- implement the dateTime options
 
 Home page: scrollable 
   1st page

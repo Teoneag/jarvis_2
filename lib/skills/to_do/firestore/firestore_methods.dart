@@ -16,6 +16,25 @@ class FirestoreMethods {
     }
   }
 
+  static Future<void> updateTask(Task task) async {
+    try {
+      await _firestore
+          .collection(_tasks)
+          .doc(task.id)
+          .update(task.toFirestore());
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  static Future<void> deleteTask(String taskId) async {
+    try {
+      await _firestore.collection(_tasks).doc(taskId).delete();
+    } catch (e) {
+      print(e);
+    }
+  }
+
   static Future<Task?> getTask(String taskId) async {
     try {
       DocumentSnapshot docSnapshot =
@@ -43,5 +62,13 @@ class FirestoreMethods {
       print(e);
       return [];
     }
+  }
+
+  static Stream<List<Task>> getTasksStream() {
+    return _firestore.collection(_tasks).snapshots().map((snapshot) {
+      return snapshot.docs.map((doc) {
+        return Task.fromFirestore(doc);
+      }).toList();
+    });
   }
 }

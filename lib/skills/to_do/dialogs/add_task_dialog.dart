@@ -15,26 +15,27 @@ class AddTaskDialog extends StatefulWidget {
 class _AddTaskDialogState extends State<AddTaskDialog> {
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
-  String _startDate = '';
-  String _endDate = '';
+  final _startDateController = TextEditingController();
+  final _planedDurationController = TextEditingController();
+  final _reccuranceGapController = TextEditingController();
   Priority _selectedPriority = Priority.none;
   final _formKey = GlobalKey<FormState>();
+  final FocusNode _titleFocusNode = FocusNode();
 
   @override
   void dispose() {
     _titleController.dispose();
     _descriptionController.dispose();
+    _titleFocusNode.dispose();
     super.dispose();
   }
 
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
-      Task newTask = Task(
-        title: _titleController.text.trim(),
-        description: _descriptionController.text.trim(),
-        priority: _selectedPriority,
-        // startDateTime: _startDate,
-        // endDateTime: _endDate,
+      Task newTask = Task.fromInput(
+        _titleController.text.trim(),
+        _descriptionController.text.trim(),
+        _selectedPriority,
       );
       FirestoreMethods.addTask(newTask).then((taskId) {
         if (taskId.isNotEmpty) {
@@ -50,67 +51,69 @@ class _AddTaskDialogState extends State<AddTaskDialog> {
   Widget build(BuildContext context) {
     return AlertDialog(
       title: const Text('Add a new task'),
-      content: SingleChildScrollView(
-        child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextFormField(
-                controller: _titleController,
-                autofocus: true,
-                decoration: const InputDecoration(hintText: 'Title'),
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'Title cannot be empty';
-                  }
-                  return null;
-                },
-              ),
-              TextField(
-                controller: _descriptionController,
-                decoration: const InputDecoration(hintText: 'Description'),
-              ),
-              DropdownButton<Priority>(
-                isExpanded: true,
-                value: _selectedPriority,
-                onChanged: (newValue) {
-                  setState(() {
-                    _selectedPriority = newValue ?? Priority.none;
-                  });
-                },
-                items: Priority.values
-                    .map((priority) => DropdownMenuItem(
-                          value: priority,
-                          child: Text(priority.toString().split('.').last),
-                        ))
-                    .toList(),
-              ),
-              const Row(
-                children: [
-                  IntrinsicWidth(
-                    child: TextField(),
-                  ),
-                  IntrinsicWidth(
-                    child: TextField(),
-                  ),
-                ],
-              ),
-              SizedBox(
-                width: 500,
-                child: CalendarDatePicker(
-                  initialDate: DateTime.now(),
-                  firstDate: DateTime(2000),
-                  lastDate: DateTime(2100),
-                  onDateChanged: (newDate) {
-                    // setState(() {
-                    //   _selectedStartDate = newDate;
-                    // });
-                  },
+      content: Form(
+        key: _formKey,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextFormField(
+              controller: _titleController,
+              onFieldSubmitted: (_) => _submitForm(),
+              autofocus: true,
+              focusNode: _titleFocusNode,
+              decoration: const InputDecoration(hintText: 'Title'),
+              validator: (value) {
+                if (value == null || value.trim().isEmpty) {
+                  _titleFocusNode.requestFocus();
+                  return 'Title cannot be empty';
+                }
+                return null;
+              },
+            ),
+            TextField(
+              controller: _descriptionController,
+              onSubmitted: (_) => _submitForm(),
+              decoration: const InputDecoration(hintText: 'Description'),
+            ),
+            DropdownButton<Priority>(
+              isExpanded: true,
+              value: _selectedPriority,
+              onChanged: (newValue) {
+                setState(() {
+                  _selectedPriority = newValue ?? Priority.none;
+                });
+              },
+              items: Priority.values
+                  .map((priority) => DropdownMenuItem(
+                        value: priority,
+                        child: Text(priority.toString().split('.').last),
+                      ))
+                  .toList(),
+            ),
+            const Row(
+              children: [
+                IntrinsicWidth(
+                  child: TextField(),
                 ),
+                IntrinsicWidth(
+                  child: TextField(),
+                ),
+              ],
+            ),
+            SizedBox(
+              width: 500,
+              child: CalendarDatePicker(
+                initialDate: DateTime.now(),
+                firstDate: DateTime(2000),
+                lastDate: DateTime(2100),
+                onDateChanged: (newDate) {
+                  // setState(() {
+                  //   _selectedStartDate = newDate;
+                  // });
+                },
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
       actions: <Widget>[

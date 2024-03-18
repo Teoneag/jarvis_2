@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:jarvis_2/skills/to_do/models/time_model.dart';
 
@@ -18,19 +19,25 @@ String dateToString(DateTime date, int daysDiff, bool includeTime) {
   }
 }
 
-String dateToStringShort(DateTime? start, bool toOrder, Duration? duration) {
-  if (start == null) return '';
+Widget? dateToShortWidget(Time time) {
+  String res = dateToShortString(time);
+  if (res != '') return Text(res);
+  return null;
+}
 
-  final daysDiff = substractDays(start, DateTime.now());
+String dateToShortString(Time time) {
+  if (time.start == null) return '';
+
+  final daysDiff = substractDays(time.start!, DateTime.now());
 
   String res = '';
 
-  res += dateToString(start, daysDiff, true);
+  res += dateToString(time.start!, daysDiff, true);
 
-  if (duration == null) return res;
+  if (time.plannedDuration == null) return res;
 
-  final endDaysDiff = duration.inDays;
-  final endDate = start.add(duration);
+  final endDaysDiff = time.plannedDuration!.inDays;
+  final endDate = time.start!.add(time.plannedDuration!);
 
   res += ' -> ${dateToString(endDate, endDaysDiff, true)}';
 
@@ -48,7 +55,7 @@ void stringToTime(Time time, String input) {
     Time end = Time.copy(time);
     stringToDateTime(end, parts[1]);
     stringToHoursMins(end, parts[1]);
-    time.plannedDuration = end.startDateTime!.difference(time.startDateTime!);
+    time.plannedDuration = end.start!.difference(time.start!);
     return;
   }
 
@@ -85,6 +92,8 @@ void stringToTime(Time time, String input) {
     }
     return;
   }
+
+  stringToDateTime(time, input);
 }
 
 void stringToDateTime(Time time, String input) {
@@ -97,11 +106,11 @@ void stringToDateTime(Time time, String input) {
     String unit = match.group(2)!;
     switch (unit) {
       case 'm':
-        time.startDateTime = DateTime(
+        time.start = DateTime(
             now.year, now.month, now.day, now.hour, now.minute + number);
         break;
       case 'h':
-        time.startDateTime = DateTime(
+        time.start = DateTime(
             now.year, now.month, now.day, now.hour + number, now.minute);
         break;
     }
@@ -113,8 +122,8 @@ void stringToDateTime(Time time, String input) {
   }
 
   stringToDate(time, input);
-  if (time.startDateTime == null) {
-    time.startDateTime = DateTime(now.year, now.month, now.day);
+  if (time.start == null) {
+    time.start = DateTime(now.year, now.month, now.day);
     time.reccurenceGap = null;
   }
   stringToHoursMins(time, input);
@@ -125,8 +134,7 @@ void stringToHoursMins(Time time, String input) {
 
   // no time
   if (input.contains('no time')) {
-    time.startDateTime = DateTime(time.startDateTime!.year,
-        time.startDateTime!.month, time.startDateTime!.day);
+    time.start = DateTime(time.start!.year, time.start!.month, time.start!.day);
     return;
   }
 
@@ -134,12 +142,8 @@ void stringToHoursMins(Time time, String input) {
   Match? match = RegExp(r"\b(\d{1,2}):(\d{2})").firstMatch(input);
   if (match != null && match.group(0) != null) {
     List<String> parts = match.group(0)!.split(':');
-    time.startDateTime = DateTime(
-        time.startDateTime!.year,
-        time.startDateTime!.month,
-        time.startDateTime!.day,
-        int.parse(parts[0]),
-        int.parse(parts[1]));
+    time.start = DateTime(time.start!.year, time.start!.month, time.start!.day,
+        int.parse(parts[0]), int.parse(parts[1]));
     return;
   }
 }
@@ -151,19 +155,19 @@ void stringToDate(Time time, String input) {
 
   // no date
   if (input.contains('no date')) {
-    time.startDateTime = null;
+    time.start = null;
     time.reccurenceGap = null;
     return;
   }
 
   // tod/tom
   if (input.contains('tod')) {
-    time.startDateTime = DateTime(now.year, now.month, now.day);
+    time.start = DateTime(now.year, now.month, now.day);
     time.reccurenceGap = null;
     return;
   }
   if (input.contains('tom')) {
-    time.startDateTime = DateTime(now.year, now.month, now.day + 1);
+    time.start = DateTime(now.year, now.month, now.day + 1);
     time.reccurenceGap = null;
     return;
   }
@@ -173,7 +177,7 @@ void stringToDate(Time time, String input) {
       .firstMatch(input);
   if (match != null && match.group(0) != null) {
     List<String> parts = match.group(0)!.split('.');
-    time.startDateTime =
+    time.start =
         DateTime(int.parse(parts[2]), int.parse(parts[1]), int.parse(parts[0]));
     time.reccurenceGap = null;
     return;
@@ -186,7 +190,7 @@ void stringToDate(Time time, String input) {
   ).firstMatch(input);
   if (match != null && match.group(0) != null) {
     List<String> parts = match.group(0)!.split(' ');
-    time.startDateTime = DateTime(int.parse(parts[2]),
+    time.start = DateTime(int.parse(parts[2]),
         monthMap[parts[1].toLowerCase()]!, int.parse(parts[0]));
     time.reccurenceGap = null;
     return;
@@ -197,8 +201,7 @@ void stringToDate(Time time, String input) {
       RegExp(r"\b(3[01]|[12][0-9]|[1-9])\.(1[012]|[1-9])").firstMatch(input);
   if (match != null && match.group(0) != null) {
     List<String> parts = match.group(0)!.split('.');
-    time.startDateTime =
-        DateTime(now.year, int.parse(parts[1]), int.parse(parts[0]));
+    time.start = DateTime(now.year, int.parse(parts[1]), int.parse(parts[0]));
     time.reccurenceGap = null;
     return;
   }
@@ -210,7 +213,7 @@ void stringToDate(Time time, String input) {
   ).firstMatch(input);
   if (match != null && match.group(0) != null) {
     List<String> parts = match.group(0)!.split(' ');
-    time.startDateTime = DateTime(
+    time.start = DateTime(
         now.year, monthMap[parts[1].toLowerCase()]!, int.parse(parts[0]));
     time.reccurenceGap = null;
     return;
@@ -223,7 +226,7 @@ void stringToDate(Time time, String input) {
   ).firstMatch(input);
   if (match != null && match.group(0) != null) {
     List<String> parts = match.group(0)!.split(' ');
-    time.startDateTime = DateTime(now.year, now.month, int.parse(parts[1]));
+    time.start = DateTime(now.year, now.month, int.parse(parts[1]));
     time.reccurenceGap = null;
     return;
   }
@@ -235,7 +238,7 @@ void stringToDate(Time time, String input) {
   ).firstMatch(input);
   if (match != null && match.group(0) != null) {
     List<String> parts = match.group(0)!.split(' ');
-    time.startDateTime = DateTime(now.year, now.month, int.parse(parts[1]));
+    time.start = DateTime(now.year, now.month, int.parse(parts[1]));
     time.reccurenceGap = const Duration(days: 31);
     return;
   }
@@ -250,8 +253,7 @@ void stringToDate(Time time, String input) {
     int daysDiff = day - now.weekday;
     if (daysDiff <= 0) daysDiff += 7;
     final nextWekkDay = now.add(Duration(days: daysDiff));
-    time.startDateTime =
-        DateTime(nextWekkDay.year, nextWekkDay.month, nextWekkDay.day);
+    time.start = DateTime(nextWekkDay.year, nextWekkDay.month, nextWekkDay.day);
     time.reccurenceGap = const Duration(days: 7);
     return;
   }
@@ -266,8 +268,7 @@ void stringToDate(Time time, String input) {
     int daysDiff = day - now.weekday;
     if (daysDiff <= 0) daysDiff += 7;
     final nextWeekDay = now.add(Duration(days: daysDiff));
-    time.startDateTime =
-        DateTime(nextWeekDay.year, nextWeekDay.month, nextWeekDay.day);
+    time.start = DateTime(nextWeekDay.year, nextWeekDay.month, nextWeekDay.day);
     time.reccurenceGap = null;
     return;
   }
@@ -279,17 +280,16 @@ void stringToDate(Time time, String input) {
     String unit = match.group(2)!;
     switch (unit) {
       case 'd':
-        time.startDateTime = DateTime(now.year, now.month, now.day + number);
+        time.start = DateTime(now.year, now.month, now.day + number);
         break;
       case 'w':
-        time.startDateTime =
-            DateTime(now.year, now.month, now.day + number * 7);
+        time.start = DateTime(now.year, now.month, now.day + number * 7);
         break;
       case 'M':
-        time.startDateTime = DateTime(now.year, now.month + number, now.day);
+        time.start = DateTime(now.year, now.month + number, now.day);
         break;
       case 'y':
-        time.startDateTime = DateTime(now.year + number, now.month, now.day);
+        time.start = DateTime(now.year + number, now.month, now.day);
         break;
     }
 

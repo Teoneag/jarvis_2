@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:jarvis_2/skills/to_do/methods/time_methods.dart';
 import 'package:jarvis_2/skills/to_do/models/time_model.dart';
 import '/skills/to_do/enums/priority_enum.dart';
 
@@ -25,6 +26,14 @@ class Task {
     this.priority = Priority.none,
     time,
   }) : time = time ?? Time();
+
+  Task.fromInput(this.title, this.description, this.priority)
+      : id = '',
+        isDone = false,
+        time = Time() {
+    stringToTime(time, title);
+    print(time.start);
+  }
 
   factory Task.fromFirestore(DocumentSnapshot doc) {
     var data = doc.data() as Map<String, dynamic>;
