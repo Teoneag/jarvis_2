@@ -1,6 +1,4 @@
 ## ToDo
-- shouldn't flicker when adding a new task
-- make tom work
 - be able to move tasks
 - sort them automatically by date
 - work for phone
@@ -8,8 +6,14 @@
 - if you hover over date you get more details
 - ToPlan ToDo without due date or without due time
 - Create/view page
+- terminal looking instead of scaffoldmessager
+- highlight time part from task
 
 ## Done
+- delete time park from task
+- make tom work
+- no date and time should work
+- shouldn't flicker when adding a new task
 - finish writing the dateTime options
 - implement the dateTime options
 
@@ -24,7 +28,23 @@ Before going to sleep: day review + score
 Keep track of score (hours efficient /hours inneficient)
 + plan next day
 Remind me of bdays + exams some time before
- 
+
+## Tasks operations
+- add a new task
+- modify a task (by id)
+- delete a task (by id)
+- sort tasks by date
+
+## Sync
+- When
+  - opening ToDo
+  - adding a new task
+  - modifying a task
+  - deleting a task
+  - refreshing tasks
+- What
+  - list of tasks
+  - 
 
 start DateTime, reccurance, planned duration, actual duration 
 - firestore storage

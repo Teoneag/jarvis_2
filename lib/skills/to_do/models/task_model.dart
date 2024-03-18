@@ -31,8 +31,7 @@ class Task {
       : id = '',
         isDone = false,
         time = Time() {
-    stringToTime(time, title);
-    print(time.start);
+    stringToTime(this);
   }
 
   factory Task.fromFirestore(DocumentSnapshot doc) {
