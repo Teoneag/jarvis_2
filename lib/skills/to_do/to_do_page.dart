@@ -72,8 +72,8 @@ class _ToDoPageState extends State<ToDoPage> {
   }
 
   void _deleteTask(String taskId) async {
+    _tasks.remove(taskId);
     try {
-      _tasks.remove(taskId);
       await Firestore.deleteTask(taskId);
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         content: Text('Task deleted successfully'),
@@ -86,6 +86,22 @@ class _ToDoPageState extends State<ToDoPage> {
     }
   }
 
+  void _completeTask(String taskId) async {
+    try {
+      Task task = _tasks[taskId]!;
+      _tasks.remove(taskId);
+      await Firestore.updateTask(task);
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('Task completed successfully'),
+      ));
+      setState(() {});
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Error completing task: $e'),
+      ));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -93,7 +109,7 @@ class _ToDoPageState extends State<ToDoPage> {
         itemCount: _tasks.length,
         itemBuilder: (BuildContext context, int index) {
           final task = _tasks.values.elementAt(index);
-          return TaskListTile(task, _deleteTask);
+          return TaskListTile(task, _deleteTask, _completeTask);
         },
       ),
       floatingActionButton: FloatingActionButton(

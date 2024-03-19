@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:jarvis_2/skills/to_do/methods/time_methods.dart';
 import 'package:jarvis_2/skills/to_do/models/time_model.dart';
 import '/skills/to_do/enums/priority_enum.dart';
+import 'time_period_model.dart';
 
 class TaskFields {
   static const String title = 'title';
@@ -26,6 +27,10 @@ class Task {
     this.priority = Priority.none,
     time,
   }) : time = time ?? Time();
+
+  TimePeriod get period => time.period;
+
+  bool get isRunning => time.isRunning;
 
   Task.fromInput(this.title, this.description, this.priority)
       : id = '',
@@ -57,12 +62,20 @@ class Task {
     };
   }
 
-  void done() {
-    if (time.actualStart == null) {
-      time.actualStart = DateTime.now();
-    } else {
-      time.actualEnd ??= DateTime.now();
-      isDone = true;
+  void start() {
+    if (time.periods[0].actualStart != null) {
+      time.periods.insert(0, TimePeriod());
     }
+    time.periods[0].actualStart = DateTime.now();
+  }
+
+  void stop() {
+    time.periods[0].actualEnd = DateTime.now();
+    if (time.reccurenceGap == null) {
+      isDone = true;
+      return;
+    }
+    time.periods.insert(0, TimePeriod());
+    // TODO make the planned dates be calculated from the reccurance gap
   }
 }

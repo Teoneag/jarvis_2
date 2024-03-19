@@ -53,7 +53,10 @@ class Firestore {
 
   static Future<Map<String, Task>> getTasks() async {
     try {
-      QuerySnapshot querySnapshot = await _firestore.collection(_tasks).get();
+      QuerySnapshot querySnapshot = await _firestore
+          .collection(_tasks)
+          .where(TaskFields.isDone, isEqualTo: false)
+          .get();
       Map<String, Task> tasks = {};
       for (var doc in querySnapshot.docs) {
         tasks[doc.id] = Task.fromFirestore(doc);
