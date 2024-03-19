@@ -56,4 +56,13 @@ class Task {
       ...time.toFirestore(),
     };
   }
+
+  void done() {
+    if (time.actualStart == null) {
+      time.actualStart = DateTime.now();
+    } else {
+      time.actualEnd ??= DateTime.now();
+      isDone = true;
+    }
+  }
 }
