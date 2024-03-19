@@ -1,4 +1,5 @@
 ## ToDo
+- Planned, actual start, enddate
 - be able to move tasks
 - sort them automatically by date
 - work for phone
