@@ -1,35 +1,35 @@
 class TimeField {
-  static const String startDateTime = 'startDateTime';
-  static const String plannedDuration = 'plannedDuration';
-  static const String actualDuration = 'actualDuration';
+  static const String plannedStart = 'plannedStart';
+  static const String actualStart = 'actualStart';
+  static const String plannedEnd = 'plannedEnd';
+  static const String actualEnd = 'actualEnd';
   static const String reccuranceGap = 'reccuranceGap';
   static const String toOrder = 'toOrder';
 }
 
 class Time {
-  DateTime? start;
-  Duration? plannedDuration;
-  Duration? actualDuration;
+  DateTime? plannedStart;
+  DateTime? actualStart;
+  DateTime? plannedEnd;
+  DateTime? actualEnd;
   Duration? reccurenceGap;
   bool toOrder; // if it has no start time, only start date
 
   Time({
-    this.start,
-    this.plannedDuration,
-    this.actualDuration,
+    this.plannedStart,
+    this.actualStart,
+    this.plannedEnd,
+    this.actualEnd,
     this.reccurenceGap,
     this.toOrder = true,
   });
 
   factory Time.fromFirestore(Map<String, dynamic> data) {
     return Time(
-      start: data[TimeField.startDateTime]?.toDate(),
-      plannedDuration: data[TimeField.plannedDuration] != null
-          ? Duration(seconds: data[TimeField.plannedDuration])
-          : null,
-      actualDuration: data[TimeField.actualDuration] != null
-          ? Duration(seconds: data[TimeField.actualDuration])
-          : null,
+      plannedStart: data[TimeField.plannedStart]?.toDate(),
+      actualStart: data[TimeField.actualStart]?.toDate(),
+      plannedEnd: data[TimeField.plannedEnd]?.toDate(),
+      actualEnd: data[TimeField.actualEnd]?.toDate(),
       reccurenceGap: data[TimeField.reccuranceGap] != null
           ? Duration(seconds: data[TimeField.reccuranceGap])
           : null,
@@ -38,17 +38,19 @@ class Time {
   }
 
   Time.copy(Time time)
-      : start = time.start,
-        plannedDuration = time.plannedDuration,
-        actualDuration = time.actualDuration,
+      : plannedStart = time.plannedStart,
+        actualStart = time.actualStart,
+        plannedEnd = time.plannedEnd,
+        actualEnd = time.actualEnd,
         reccurenceGap = time.reccurenceGap,
         toOrder = time.toOrder;
 
   Map<String, dynamic> toFirestore() {
     return {
-      TimeField.startDateTime: start,
-      TimeField.plannedDuration: plannedDuration?.inSeconds,
-      TimeField.actualDuration: actualDuration?.inSeconds,
+      TimeField.plannedStart: plannedStart,
+      TimeField.actualStart: actualStart,
+      TimeField.plannedEnd: plannedEnd,
+      TimeField.actualEnd: actualEnd,
       TimeField.reccuranceGap: reccurenceGap?.inSeconds,
       TimeField.toOrder: toOrder,
     };

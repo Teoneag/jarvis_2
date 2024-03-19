@@ -9,14 +9,17 @@ void main() {
   late List<String> partsToDelete;
 
   setUp(() {
-    time = Time(start: now, reccurenceGap: const Duration(days: 1));
+    time = Time(
+        plannedStart: now,
+        toOrder: true,
+        plannedEnd: now.add(const Duration(days: 1)));
     partsToDelete = [];
   });
 
   group('stringToDate', () {
     test('correctly handles "no date"', () {
       stringToDate(time, 'go jim no date p1', partsToDelete);
-      expect(time.start, isNull);
+      expect(time.plannedStart, isNull);
       expect(time.reccurenceGap, isNull);
       expect(partsToDelete, ['no date']);
     });
@@ -24,7 +27,7 @@ void main() {
     test('correctly handles "tod"', () {
       stringToDate(time, 'go jim tod p1', partsToDelete);
       final expectedTime = DateTime(now.year, now.month, now.day);
-      expect(time.start, expectedTime);
+      expect(time.plannedStart, expectedTime);
       expect(time.reccurenceGap, isNull);
       expect(partsToDelete, ['tod']);
     });
@@ -32,7 +35,7 @@ void main() {
     test('correctly handles "tom"', () {
       stringToDate(time, 'go jim tom p1', partsToDelete);
       final expectedTime = DateTime(now.year, now.month, now.day + 1);
-      expect(time.start, expectedTime);
+      expect(time.plannedStart, expectedTime);
       expect(time.reccurenceGap, isNull);
       expect(partsToDelete, ['tom']);
     });
@@ -40,7 +43,7 @@ void main() {
     test('correctly handles "12.1.2024"', () {
       stringToDate(time, 'go jim 12.1.2024 p1', partsToDelete);
       final expectedTime = DateTime(2024, 1, 12);
-      expect(time.start, expectedTime);
+      expect(time.plannedStart, expectedTime);
       expect(time.reccurenceGap, isNull);
       expect(partsToDelete, ['12.1.2024']);
     });
@@ -48,7 +51,7 @@ void main() {
     test('correctly handles "12 jan 2024"', () {
       stringToDate(time, 'go jim 12 jan 2024 p1', partsToDelete);
       final expectedTime = DateTime(2024, 1, 12);
-      expect(time.start, expectedTime);
+      expect(time.plannedStart, expectedTime);
       expect(time.reccurenceGap, isNull);
       expect(partsToDelete, ['12 jan 2024']);
     });
@@ -56,7 +59,7 @@ void main() {
     test('correctly handles "12.1"', () {
       stringToDate(time, 'go jim 12.1 p1', partsToDelete);
       final expectedTime = DateTime(now.year, 1, 12);
-      expect(time.start, expectedTime);
+      expect(time.plannedStart, expectedTime);
       expect(time.reccurenceGap, isNull);
       expect(partsToDelete, ['12.1']);
     });
@@ -64,7 +67,7 @@ void main() {
     test('correctly handles "12 jan"', () {
       stringToDate(time, 'go jim 12 jan p1', partsToDelete);
       final expectedTime = DateTime(now.year, 1, 12);
-      expect(time.start, expectedTime);
+      expect(time.plannedStart, expectedTime);
       expect(time.reccurenceGap, isNull);
       expect(partsToDelete, ['12 jan']);
     });
@@ -72,7 +75,7 @@ void main() {
     test('correctly handles "this 12"', () {
       stringToDate(time, 'go jim this 12 p1', partsToDelete);
       final expectedTime = DateTime(now.year, now.month, 12);
-      expect(time.start, expectedTime);
+      expect(time.plannedStart, expectedTime);
       expect(time.reccurenceGap, isNull);
       expect(partsToDelete, ['this 12']);
     });
@@ -80,7 +83,7 @@ void main() {
     test('correctly handles "every 12"', () {
       stringToDate(time, 'go jim every 12 p1', partsToDelete);
       final expectedTime = DateTime(now.year, now.month, 12);
-      expect(time.start, expectedTime);
+      expect(time.plannedStart, expectedTime);
       expect(time.reccurenceGap, const Duration(days: 31));
       expect(partsToDelete, ['every 12']);
     });
@@ -90,7 +93,7 @@ void main() {
       final nextMonday = now.add(Duration(days: (8 - now.weekday) % 7));
       final expectedTime =
           DateTime(nextMonday.year, nextMonday.month, nextMonday.day);
-      expect(time.start, expectedTime);
+      expect(time.plannedStart, expectedTime);
       expect(time.reccurenceGap, const Duration(days: 7));
       expect(partsToDelete, ['every mon']);
     });
@@ -100,7 +103,7 @@ void main() {
       final nextMonday = now.add(Duration(days: (8 - now.weekday) % 7));
       final expectedTime =
           DateTime(nextMonday.year, nextMonday.month, nextMonday.day);
-      expect(time.start, expectedTime);
+      expect(time.plannedStart, expectedTime);
       expect(time.reccurenceGap, null);
       expect(partsToDelete, ['mon']);
     });
@@ -109,7 +112,7 @@ void main() {
       stringToDate(time, 'go jim in 5d p1', partsToDelete);
       final in5Days = now.add(const Duration(days: 5));
       final expectedTime = DateTime(in5Days.year, in5Days.month, in5Days.day);
-      expect(time.start, expectedTime);
+      expect(time.plannedStart, expectedTime);
       expect(time.reccurenceGap, isNull);
       expect(partsToDelete, ['in 5d']);
     });
@@ -119,7 +122,7 @@ void main() {
       final in5Weeks = now.add(const Duration(days: 35));
       final expectedTime =
           DateTime(in5Weeks.year, in5Weeks.month, in5Weeks.day);
-      expect(time.start, expectedTime);
+      expect(time.plannedStart, expectedTime);
       expect(time.reccurenceGap, isNull);
       expect(partsToDelete, ['in 5w']);
     });
@@ -129,7 +132,7 @@ void main() {
       final in5Months = DateTime(now.year, now.month + 5, now.day);
       final expectedTime =
           DateTime(in5Months.year, in5Months.month, in5Months.day);
-      expect(time.start, expectedTime);
+      expect(time.plannedStart, expectedTime);
       expect(time.reccurenceGap, isNull);
       expect(partsToDelete, ['in 5M']);
     });
@@ -139,7 +142,7 @@ void main() {
       final in5Years = DateTime(now.year + 5, now.month, now.day);
       final expectedTime =
           DateTime(in5Years.year, in5Years.month, in5Years.day);
-      expect(time.start, expectedTime);
+      expect(time.plannedStart, expectedTime);
       expect(time.reccurenceGap, isNull);
       expect(partsToDelete, ['in 5y']);
     });
@@ -149,14 +152,14 @@ void main() {
     test('correctly handles "no time"', () {
       stringToHoursMins(time, 'go jim no time p1', partsToDelete);
       final expectedTime = DateTime(now.year, now.month, now.day);
-      expect(time.start, expectedTime);
+      expect(time.plannedStart, expectedTime);
     });
 
     test('correctly handles "12:00"', () {
       stringToHoursMins(time, 'go jim 12:00 p1', partsToDelete);
       final expectedTime = DateTime(now.year, now.month, now.day, 12, 0);
-      expect(time.start, expectedTime);
-      expect(time.reccurenceGap, const Duration(days: 1));
+      expect(time.plannedStart, expectedTime);
+      expect(time.reccurenceGap, null);
       expect(partsToDelete, ['12:00']);
     });
   });
@@ -167,7 +170,7 @@ void main() {
       stringToDateTime(time, 'go jim in 5m p1', partsToDelete);
       final expectedTime =
           DateTime(now.year, now.month, now.day, now.hour, now.minute + 5);
-      expect(time.start, expectedTime);
+      expect(time.plannedStart, expectedTime);
       expect(time.reccurenceGap, isNull);
       expect(partsToDelete, ['in 5m']);
     });
@@ -177,7 +180,7 @@ void main() {
       stringToDateTime(time, 'go jim in 5h p1', partsToDelete);
       final expectedTime =
           DateTime(now.year, now.month, now.day, now.hour + 5, now.minute);
-      expect(time.start, expectedTime);
+      expect(time.plannedStart, expectedTime);
       expect(time.reccurenceGap, isNull);
       expect(partsToDelete, ['in 5h']);
     });
@@ -186,7 +189,7 @@ void main() {
     test('correctly handles "go jim 12 jan 2024 12:00 p1"', () {
       stringToDateTime(time, 'go jim 12 jan 2024 12:00 p1', partsToDelete);
       final expectedTime = DateTime(2024, 1, 12, 12, 0);
-      expect(time.start, expectedTime);
+      expect(time.plannedStart, expectedTime);
       expect(time.reccurenceGap, isNull);
       expect(partsToDelete, ['12 jan 2024', '12:00']);
     });
@@ -197,7 +200,7 @@ void main() {
       final nextMonday = now.add(Duration(days: (8 - now.weekday) % 7));
       final expectedTime =
           DateTime(nextMonday.year, nextMonday.month, nextMonday.day, 13, 59);
-      expect(time.start, expectedTime);
+      expect(time.plannedStart, expectedTime);
       expect(time.reccurenceGap, isNull);
       expect(partsToDelete, ['mon', '13:59']);
     });
@@ -208,7 +211,7 @@ void main() {
       final in5Days = now.add(const Duration(days: 5));
       final expectedTime =
           DateTime(in5Days.year, in5Days.month, in5Days.day, 13, 59);
-      expect(time.start, expectedTime);
+      expect(time.plannedStart, expectedTime);
       expect(time.reccurenceGap, isNull);
       expect(partsToDelete, ['in 5d', '13:59']);
     });
@@ -219,7 +222,7 @@ void main() {
       final nextMonday = now.add(Duration(days: (8 - now.weekday) % 7));
       final expectedTime =
           DateTime(nextMonday.year, nextMonday.month, nextMonday.day, 10, 1);
-      expect(time.start, expectedTime);
+      expect(time.plannedStart, expectedTime);
       expect(time.reccurenceGap, const Duration(days: 7));
       expect(partsToDelete, ['every mon', '10:01']);
     });
@@ -228,8 +231,8 @@ void main() {
     test('correctly handles "go jim 12:00 p1"', () {
       stringToDateTime(time, 'go jim 12:00 p1', partsToDelete);
       final expectedTime = DateTime(now.year, now.month, now.day, 12, 0);
-      expect(time.start, expectedTime);
-      expect(time.reccurenceGap, const Duration(days: 1));
+      expect(time.plannedStart, expectedTime);
+      expect(time.reccurenceGap, null);
       expect(partsToDelete, ['12:00']);
     });
   });
@@ -239,10 +242,9 @@ void main() {
       Task task = Task(title: 'go jim 12 jan 12:00 -> 13:00 p1');
       stringToTime(task);
       final expectedTime = DateTime(2024, 1, 12, 12, 0);
-      expect(task.time.start, expectedTime);
+      expect(task.time.plannedStart, expectedTime);
       final expectedEnd = DateTime(2024, 1, 12, 13, 0);
-      final duration = expectedEnd.difference(expectedTime);
-      expect(task.time.plannedDuration, duration);
+      expect(task.time.plannedEnd, expectedEnd);
       expect(task.time.reccurenceGap, isNull);
       expect(task.time.toOrder, isFalse);
       expect(task.title, 'go jim p1');
@@ -252,10 +254,9 @@ void main() {
       Task task = Task(title: 'go jim 12 jan 12:00 -> 13 jan 15:00 p1');
       stringToTime(task);
       final expectedTime = DateTime(2024, 1, 12, 12, 0);
-      expect(task.time.start, expectedTime);
+      expect(task.time.plannedStart, expectedTime);
       final expectedEnd = DateTime(2024, 1, 13, 15, 0);
-      final duration = expectedEnd.difference(expectedTime);
-      expect(task.time.plannedDuration, duration);
+      expect(task.time.plannedEnd, expectedEnd);
       expect(task.time.reccurenceGap, isNull);
       expect(task.time.toOrder, isFalse);
       expect(task.title, 'go jim p1');
@@ -265,10 +266,9 @@ void main() {
       Task task = Task(title: 'go jim 12 jan 12:00 for 1h p1');
       stringToTime(task);
       final expectedTime = DateTime(2024, 1, 12, 12, 0);
-      expect(task.time.start, expectedTime);
+      expect(task.time.plannedStart, expectedTime);
       final expectedEnd = DateTime(2024, 1, 12, 13, 0);
-      final duration = expectedEnd.difference(expectedTime);
-      expect(task.time.plannedDuration, duration);
+      expect(task.time.plannedEnd, expectedEnd);
       expect(task.time.reccurenceGap, isNull);
       expect(task.time.toOrder, isFalse);
       expect(task.title, 'go jim p1');
