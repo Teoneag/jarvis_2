@@ -1,58 +1,44 @@
+import '/skills/to_do/models/time_period_model.dart';
+
 class TimeField {
-  static const String plannedStart = 'plannedStart';
-  static const String actualStart = 'actualStart';
-  static const String plannedEnd = 'plannedEnd';
-  static const String actualEnd = 'actualEnd';
   static const String reccuranceGap = 'reccuranceGap';
-  static const String toOrder = 'toOrder';
+  static const String periods = 'periods';
 }
 
 class Time {
-  DateTime? plannedStart;
-  DateTime? actualStart;
-  DateTime? plannedEnd;
-  DateTime? actualEnd;
+  List<TimePeriod> periods = []; // 1st period is the current one
   Duration? reccurenceGap;
-  bool toOrder; // if it has no start time, only start date
 
   Time({
-    this.plannedStart,
-    this.actualStart,
-    this.plannedEnd,
-    this.actualEnd,
+    periods,
     this.reccurenceGap,
-    this.toOrder = true,
-  });
+  }) : periods = periods ?? [TimePeriod()];
 
   factory Time.fromFirestore(Map<String, dynamic> data) {
+    final list = data[TimeField.periods] as List;
+    final gap = data[TimeField.reccuranceGap];
     return Time(
-      plannedStart: data[TimeField.plannedStart]?.toDate(),
-      actualStart: data[TimeField.actualStart]?.toDate(),
-      plannedEnd: data[TimeField.plannedEnd]?.toDate(),
-      actualEnd: data[TimeField.actualEnd]?.toDate(),
-      reccurenceGap: data[TimeField.reccuranceGap] != null
-          ? Duration(seconds: data[TimeField.reccuranceGap])
-          : null,
-      toOrder: data[TimeField.toOrder],
+      periods: list.map((period) => TimePeriod.fromFirestore(period)).toList(),
+      reccurenceGap: gap != null ? Duration(seconds: gap) : null,
     );
   }
 
+  TimePeriod get period => periods[0];
+
+  bool get isRunning => period.actualStart != null;
+
   Time.copy(Time time)
-      : plannedStart = time.plannedStart,
-        actualStart = time.actualStart,
-        plannedEnd = time.plannedEnd,
-        actualEnd = time.actualEnd,
-        reccurenceGap = time.reccurenceGap,
-        toOrder = time.toOrder;
+      : reccurenceGap = time.reccurenceGap,
+        periods =
+            time.periods.map((period) => TimePeriod.copy(period)).toList();
 
   Map<String, dynamic> toFirestore() {
+    List<Map<String, dynamic>> periodsToFirestore =
+        periods.map((period) => period.toFirestore()).toList();
+
     return {
-      TimeField.plannedStart: plannedStart,
-      TimeField.actualStart: actualStart,
-      TimeField.plannedEnd: plannedEnd,
-      TimeField.actualEnd: actualEnd,
+      TimeField.periods: periodsToFirestore,
       TimeField.reccuranceGap: reccurenceGap?.inSeconds,
-      TimeField.toOrder: toOrder,
     };
   }
 }

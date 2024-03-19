@@ -1,6 +1,4 @@
 ## ToDo
-- pause task
-  - right click, have a list of perdiods of working instead of only start and end
 - labels for displaying tasks
   - today, upcoming are a sum of labels
 - be able to move tasks
@@ -12,8 +10,15 @@
 - Create/view page
 - terminal looking instead of scaffoldmessager
 - highlight time part from task
+- pause task
+  - right click, have a list of perdiods of working instead of only start and end
 
 ## Done
+- load only not done tasks
+- after completing a task
+- 1 task
+  - i want to be able to work on it multiple times: jarvis / to buy
+  - list of time (without reccuranceGap)
 - see when task is started
   - play/stop
 - start, do task
@@ -25,6 +30,7 @@
 - shouldn't flicker when adding a new task
 - finish writing the dateTime options
 - implement the dateTime options
+
 
 Home page: scrollable 
   1st page

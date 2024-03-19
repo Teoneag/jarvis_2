@@ -40,6 +40,7 @@ class _AddTaskDialogState extends State<AddTaskDialog> {
       );
       Firestore.addTask(newTask).then((taskId) {
         if (taskId.isNotEmpty) {
+          newTask.id = taskId;
           widget.tasks.addAll({taskId: newTask});
           Navigator.of(context).pop();
           _titleController.clear();

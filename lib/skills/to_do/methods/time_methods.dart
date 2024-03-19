@@ -34,19 +34,22 @@ Widget? timeToShortWidget(Time time) {
 }
 
 String timeToShortString(Time time) {
-  if (time.plannedStart == null) return '';
+  if (time.period.plannedStart == null) return '';
 
-  final daysDiff = substractDays(time.plannedStart!, DateTime.now());
+  final daysDiff = substractDays(time.period.plannedStart!, DateTime.now());
 
   String res = '';
 
-  res += dateToString(time.plannedStart!, daysDiff, !time.toOrder);
+  res +=
+      dateToString(time.period.plannedStart!, daysDiff, !time.period.toOrder);
 
-  if (time.plannedEnd == null) return res;
+  if (time.period.plannedEnd == null) return res;
 
-  final endDaysDiff = time.plannedEnd!.difference(time.plannedStart!).inDays;
+  final endDaysDiff =
+      time.period.plannedEnd!.difference(time.period.plannedStart!).inDays;
 
-  res += ' -> ${dateToString(time.plannedEnd!, endDaysDiff, !time.toOrder)}';
+  res +=
+      ' -> ${dateToString(time.period.plannedEnd!, endDaysDiff, !time.period.toOrder)}';
 
   return res;
 }
@@ -64,7 +67,7 @@ void stringToTime(Task task) {
     stringToDateTime(time, parts[0], partsToDelete);
     Time end = Time.copy(time);
     stringToDateTime(end, parts[1], partsToDelete);
-    time.plannedEnd = end.plannedStart;
+    time.period.plannedEnd = end.period.plannedStart;
   } else if (input.contains(' for ')) {
     // 21 jan 12:00 for 1m/h/d/w/M/y
     partsToDelete.add(' for ');
@@ -79,23 +82,28 @@ void stringToTime(Task task) {
       String unit = match.group(2)!;
       switch (unit) {
         case 'm':
-          time.plannedEnd = time.plannedStart!.add(Duration(minutes: number));
+          time.period.plannedEnd =
+              time.period.plannedStart!.add(Duration(minutes: number));
           break;
         case 'h':
-          time.plannedEnd = time.plannedStart!.add(Duration(hours: number));
+          time.period.plannedEnd =
+              time.period.plannedStart!.add(Duration(hours: number));
           break;
         case 'd':
-          time.plannedEnd = time.plannedStart!.add(Duration(days: number));
+          time.period.plannedEnd =
+              time.period.plannedStart!.add(Duration(days: number));
           break;
         case 'w':
-          time.plannedEnd = time.plannedStart!.add(Duration(days: number * 7));
+          time.period.plannedEnd =
+              time.period.plannedStart!.add(Duration(days: number * 7));
           break;
         case 'M':
-          time.plannedEnd = time.plannedStart!.add(Duration(days: number * 31));
+          time.period.plannedEnd =
+              time.period.plannedStart!.add(Duration(days: number * 31));
           break;
         case 'y':
-          time.plannedEnd =
-              time.plannedStart!.add(Duration(days: number * 365));
+          time.period.plannedEnd =
+              time.period.plannedStart!.add(Duration(days: number * 365));
           break;
       }
     }
@@ -122,16 +130,16 @@ void stringToDateTime(Time time, String input, List<String> partsToDelete) {
     String unit = match.group(2)!;
     switch (unit) {
       case 'm':
-        time.plannedStart = DateTime(
+        time.period.plannedStart = DateTime(
             now.year, now.month, now.day, now.hour, now.minute + number);
         break;
       case 'h':
-        time.plannedStart = DateTime(
+        time.period.plannedStart = DateTime(
             now.year, now.month, now.day, now.hour + number, now.minute);
         break;
     }
 
-    time.toOrder = false;
+    time.period.toOrder = false;
     time.reccurenceGap = null;
 
     return;
@@ -147,11 +155,11 @@ void stringToHoursMins(Time time, String input, List<String> partsToDelete) {
 
   // no time
   if (input.contains('no time')) {
-    time.toOrder = true;
+    time.period.toOrder = true;
     partsToDelete.add('no time');
-    if (time.plannedStart != null) {
-      time.plannedStart = DateTime(time.plannedStart!.year,
-          time.plannedStart!.month, time.plannedStart!.day);
+    if (time.period.plannedStart != null) {
+      time.period.plannedStart = DateTime(time.period.plannedStart!.year,
+          time.period.plannedStart!.month, time.period.plannedStart!.day);
     }
     return;
   }
@@ -159,14 +167,14 @@ void stringToHoursMins(Time time, String input, List<String> partsToDelete) {
   // 12:34
   Match? match = RegExp(r"\b(\d{1,2}):(\d{2})\b").firstMatch(input);
   if (match != null && match.group(0) != null) {
-    time.toOrder = false;
+    time.period.toOrder = false;
     partsToDelete.add(match.group(0)!);
     List<String> parts = match.group(0)!.split(':');
-    time.plannedStart ??= DateTime(now.year, now.month, now.day);
-    time.plannedStart = DateTime(
-        time.plannedStart!.year,
-        time.plannedStart!.month,
-        time.plannedStart!.day,
+    time.period.plannedStart ??= DateTime(now.year, now.month, now.day);
+    time.period.plannedStart = DateTime(
+        time.period.plannedStart!.year,
+        time.period.plannedStart!.month,
+        time.period.plannedStart!.day,
         int.parse(parts[0]),
         int.parse(parts[1]));
     return;
@@ -180,7 +188,7 @@ void stringToDate(Time time, String input, List<String> partsToDelete) {
   // no date
   if (input.contains('no date')) {
     partsToDelete.add('no date');
-    time.plannedStart = null;
+    time.period.plannedStart = null;
     time.reccurenceGap = null;
     return;
   }
@@ -188,13 +196,13 @@ void stringToDate(Time time, String input, List<String> partsToDelete) {
   // tod/tom
   if (input.contains('tod')) {
     partsToDelete.add('tod');
-    time.plannedStart = DateTime(now.year, now.month, now.day);
+    time.period.plannedStart = DateTime(now.year, now.month, now.day);
     time.reccurenceGap = null;
     return;
   }
   if (input.contains('tom')) {
     partsToDelete.add('tom');
-    time.plannedStart = DateTime(now.year, now.month, now.day + 1);
+    time.period.plannedStart = DateTime(now.year, now.month, now.day + 1);
     time.reccurenceGap = null;
     return;
   }
@@ -205,7 +213,7 @@ void stringToDate(Time time, String input, List<String> partsToDelete) {
   if (match != null && match.group(0) != null) {
     partsToDelete.add(match.group(0)!);
     List<String> parts = match.group(0)!.split('.');
-    time.plannedStart =
+    time.period.plannedStart =
         DateTime(int.parse(parts[2]), int.parse(parts[1]), int.parse(parts[0]));
     time.reccurenceGap = null;
     return;
@@ -219,7 +227,7 @@ void stringToDate(Time time, String input, List<String> partsToDelete) {
   if (match != null && match.group(0) != null) {
     partsToDelete.add(match.group(0)!);
     List<String> parts = match.group(0)!.split(' ');
-    time.plannedStart = DateTime(int.parse(parts[2]),
+    time.period.plannedStart = DateTime(int.parse(parts[2]),
         monthMap[parts[1].toLowerCase()]!, int.parse(parts[0]));
     time.reccurenceGap = null;
     return;
@@ -231,7 +239,7 @@ void stringToDate(Time time, String input, List<String> partsToDelete) {
   if (match != null && match.group(0) != null) {
     partsToDelete.add(match.group(0)!);
     List<String> parts = match.group(0)!.split('.');
-    time.plannedStart =
+    time.period.plannedStart =
         DateTime(now.year, int.parse(parts[1]), int.parse(parts[0]));
     time.reccurenceGap = null;
     return;
@@ -245,7 +253,7 @@ void stringToDate(Time time, String input, List<String> partsToDelete) {
   if (match != null && match.group(0) != null) {
     partsToDelete.add(match.group(0)!);
     List<String> parts = match.group(0)!.split(' ');
-    time.plannedStart = DateTime(
+    time.period.plannedStart = DateTime(
         now.year, monthMap[parts[1].toLowerCase()]!, int.parse(parts[0]));
     time.reccurenceGap = null;
     return;
@@ -259,7 +267,8 @@ void stringToDate(Time time, String input, List<String> partsToDelete) {
   if (match != null && match.group(0) != null) {
     partsToDelete.add(match.group(0)!);
     List<String> parts = match.group(0)!.split(' ');
-    time.plannedStart = DateTime(now.year, now.month, int.parse(parts[1]));
+    time.period.plannedStart =
+        DateTime(now.year, now.month, int.parse(parts[1]));
     time.reccurenceGap = null;
     return;
   }
@@ -272,7 +281,8 @@ void stringToDate(Time time, String input, List<String> partsToDelete) {
   if (match != null && match.group(0) != null) {
     partsToDelete.add(match.group(0)!);
     List<String> parts = match.group(0)!.split(' ');
-    time.plannedStart = DateTime(now.year, now.month, int.parse(parts[1]));
+    time.period.plannedStart =
+        DateTime(now.year, now.month, int.parse(parts[1]));
     time.reccurenceGap = const Duration(days: 31);
     return;
   }
@@ -288,7 +298,7 @@ void stringToDate(Time time, String input, List<String> partsToDelete) {
     int daysDiff = day - now.weekday;
     if (daysDiff < 0) daysDiff += 7;
     final nextWekkDay = now.add(Duration(days: daysDiff));
-    time.plannedStart =
+    time.period.plannedStart =
         DateTime(nextWekkDay.year, nextWekkDay.month, nextWekkDay.day);
     time.reccurenceGap = const Duration(days: 7);
     return;
@@ -305,7 +315,7 @@ void stringToDate(Time time, String input, List<String> partsToDelete) {
     int daysDiff = day - now.weekday;
     if (daysDiff < 0) daysDiff += 7;
     final nextWeekDay = now.add(Duration(days: daysDiff));
-    time.plannedStart =
+    time.period.plannedStart =
         DateTime(nextWeekDay.year, nextWeekDay.month, nextWeekDay.day);
     time.reccurenceGap = null;
     return;
@@ -319,20 +329,24 @@ void stringToDate(Time time, String input, List<String> partsToDelete) {
     String unit = match.group(2)!;
     switch (unit) {
       case 'd':
-        time.plannedStart = DateTime(now.year, now.month, now.day + number);
+        time.period.plannedStart =
+            DateTime(now.year, now.month, now.day + number);
         break;
       case 'w':
-        time.plannedStart = DateTime(now.year, now.month, now.day + number * 7);
+        time.period.plannedStart =
+            DateTime(now.year, now.month, now.day + number * 7);
         break;
       case 'M':
-        time.plannedStart = DateTime(now.year, now.month + number, now.day);
+        time.period.plannedStart =
+            DateTime(now.year, now.month + number, now.day);
         break;
       case 'y':
-        time.plannedStart = DateTime(now.year + number, now.month, now.day);
+        time.period.plannedStart =
+            DateTime(now.year + number, now.month, now.day);
         break;
     }
 
-    time.toOrder = true;
+    time.period.toOrder = true;
     time.reccurenceGap = null;
 
     return;
