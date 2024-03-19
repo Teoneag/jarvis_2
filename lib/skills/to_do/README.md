@@ -1,5 +1,6 @@
 ## ToDo
-- Planned, actual start, enddate
+- start, do task
+- pause task
 - be able to move tasks
 - sort them automatically by date
 - work for phone
@@ -11,6 +12,8 @@
 - highlight time part from task
 
 ## Done
+- see reccurance icon
+- Planned, actual start, enddate
 - delete time park from task
 - make tom work
 - no date and time should work
