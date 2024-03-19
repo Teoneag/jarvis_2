@@ -93,7 +93,7 @@ class _ToDoPageState extends State<ToDoPage> {
         itemCount: _tasks.length,
         itemBuilder: (BuildContext context, int index) {
           final task = _tasks.values.elementAt(index);
-          return taskListTile(task, _deleteTask);
+          return TaskListTile(task, _deleteTask);
         },
       ),
       floatingActionButton: FloatingActionButton(

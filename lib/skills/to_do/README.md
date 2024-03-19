@@ -1,6 +1,8 @@
 ## ToDo
-- start, do task
 - pause task
+  - right click, have a list of perdiods of working instead of only start and end
+- labels for displaying tasks
+  - today, upcoming are a sum of labels
 - be able to move tasks
 - sort them automatically by date
 - work for phone
@@ -12,6 +14,9 @@
 - highlight time part from task
 
 ## Done
+- see when task is started
+  - play/stop
+- start, do task
 - see reccurance icon
 - Planned, actual start, enddate
 - delete time park from task
