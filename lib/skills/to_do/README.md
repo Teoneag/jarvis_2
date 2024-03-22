@@ -1,6 +1,4 @@
 ## ToDo
-- edit task
-  - calendar should show interval, not only dates
 - subtasks
 - make work for time
   - daily
@@ -19,8 +17,10 @@
 - highlight time part from task
 - pause task
   - right click, have a list of perdiods of working instead of only start and end
+- calendar should show interval, not only dates
 
 ## Done
+- edit task when clicking on it
 - show planned time in edit task
 - priority from input parser
 - load only not done tasks

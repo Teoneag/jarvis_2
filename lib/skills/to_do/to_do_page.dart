@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 
 import '/skills/to_do/widgets/task_list_tile.dart';
 import '/abstracts/page.dart';
-import './dialogs/add_task_dialog.dart';
+import 'dialogs/add_edit_task_dialog.dart';
 import './models/task_model.dart';
 import './firestore/firestore_methods.dart';
 
@@ -38,7 +38,7 @@ class _ToDoPageState extends State<ToDoPage> {
     }
   }
 
-  void _showAddTaskDialog() {
+  void _showAddEditTaskDialog(int? index) {
     if (_isDialogOpen) {
       return;
     }
@@ -46,7 +46,10 @@ class _ToDoPageState extends State<ToDoPage> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AddTaskDialog(_tasks);
+        return AddEditTaskDialog(
+          _tasks,
+          index: index,
+        );
       },
     ).then((_) => setState(() => _isDialogOpen = false));
   }
@@ -54,21 +57,24 @@ class _ToDoPageState extends State<ToDoPage> {
   @override
   void initState() {
     super.initState();
-    RawKeyboard.instance.addListener(_handleKeyPress);
+    HardwareKeyboard.instance.addHandler(_handleKeyPress);
     _syncTasks();
   }
 
   @override
   void dispose() {
-    RawKeyboard.instance.removeListener(_handleKeyPress);
+    HardwareKeyboard.instance.removeHandler(_handleKeyPress);
     super.dispose();
   }
 
-  void _handleKeyPress(RawKeyEvent event) {
-    if (event is RawKeyDownEvent &&
-        event.logicalKey == LogicalKeyboardKey.keyQ) {
-      _showAddTaskDialog();
+  bool _handleKeyPress(KeyEvent event) {
+    if (event is KeyDownEvent) {
+      if (event.logicalKey == LogicalKeyboardKey.keyQ) {
+        _showAddEditTaskDialog(null);
+        return true;
+      }
     }
+    return false;
   }
 
   void _deleteTask(String taskId) async {
@@ -109,11 +115,14 @@ class _ToDoPageState extends State<ToDoPage> {
         itemCount: _tasks.length,
         itemBuilder: (BuildContext context, int index) {
           final task = _tasks.values.elementAt(index);
-          return TaskListTile(task, _deleteTask, _completeTask);
+          return InkWell(
+            onTap: () => _showAddEditTaskDialog(index),
+            child: TaskListTile(task, _deleteTask, _completeTask),
+          );
         },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _showAddTaskDialog,
+        onPressed: () => _showAddEditTaskDialog(null),
         child: const Icon(Icons.add),
       ),
     );
