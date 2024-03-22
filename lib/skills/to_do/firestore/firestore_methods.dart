@@ -16,14 +16,16 @@ class Firestore {
     }
   }
 
-  static Future<void> updateTask(Task task) async {
+  static Future<bool> updateTask(Task task) async {
     try {
       await _firestore
           .collection(_tasks)
           .doc(task.id)
           .update(task.toFirestore());
+      return true;
     } catch (e) {
       print(e);
+      return false;
     }
   }
 

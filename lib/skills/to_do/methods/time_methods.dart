@@ -55,11 +55,17 @@ String timeToShortString(Time time) {
 }
 
 void stringToTime(Task task) {
-  String input = task.title;
-  Time time = task.time;
-  List<String> partsToDelete = [];
   // modifies everything
+  List<String> partsToDelete = [];
+  taskToTime(task.title, task.time, partsToDelete);
+  for (var part in partsToDelete) {
+    task.title = task.title.replaceAll(part, '');
+  }
+  task.title = task.title.replaceAll(RegExp(r'\s+'), ' ');
+  task.title = task.title.trim();
+}
 
+void taskToTime(String input, Time time, List<String> partsToDelete) {
   // 12 jan 12:00 -> 13:00
   if (input.contains(' -> ')) {
     List<String> parts = input.split(' -> ');
@@ -111,12 +117,6 @@ void stringToTime(Task task) {
     // 12 jan 12:00
     stringToDateTime(time, input, partsToDelete);
   }
-
-  for (var part in partsToDelete) {
-    task.title = task.title.replaceAll(part, '');
-  }
-  task.title = task.title.replaceAll(RegExp(r'\s+'), ' ');
-  task.title = task.title.trim();
 }
 
 void stringToDateTime(Time time, String input, List<String> partsToDelete) {

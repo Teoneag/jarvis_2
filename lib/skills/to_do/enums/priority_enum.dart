@@ -18,3 +18,16 @@ extension PriorityColorExtension on Priority {
     }
   }
 }
+
+extension PriorityStringExtension on Priority {
+  String get string {
+    switch (this) {
+      case Priority.p0:
+        return 'p0';
+      case Priority.p1:
+        return 'p1';
+      default:
+        return 'no priority';
+    }
+  }
+}
