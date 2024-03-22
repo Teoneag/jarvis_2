@@ -1,7 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:jarvis_2/skills/to_do/methods/time_methods.dart';
-import 'package:jarvis_2/skills/to_do/models/time_model.dart';
+import '../methods/priority_methods.dart';
+import '../methods/time_methods.dart';
 import '/skills/to_do/enums/priority_enum.dart';
+import 'time_model.dart';
 import 'time_period_model.dart';
 
 class TaskFields {
@@ -37,6 +38,7 @@ class Task {
         isDone = false,
         time = Time() {
     stringToTime(this);
+    stringToPriority(this);
   }
 
   factory Task.fromFirestore(DocumentSnapshot doc) {

@@ -1,4 +1,10 @@
 ## ToDo
+- priority from input parser
+- edit task
+- subtasks
+- make work for time
+  - daily
+  - monthly
 - labels for displaying tasks
   - today, upcoming are a sum of labels
 - be able to move tasks
