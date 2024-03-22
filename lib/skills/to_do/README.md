@@ -1,13 +1,14 @@
 ## ToDo
-- priority from input parser
 - edit task
+  - calendar should show interval, not only dates
 - subtasks
 - make work for time
   - daily
   - monthly
 - labels for displaying tasks
   - today, upcoming are a sum of labels
-- be able to move tasks
+- be able to m
+- ove tasks
 - sort them automatically by date
 - work for phone
   - TimePickerSpinner
@@ -20,6 +21,8 @@
   - right click, have a list of perdiods of working instead of only start and end
 
 ## Done
+- show planned time in edit task
+- priority from input parser
 - load only not done tasks
 - after completing a task
 - 1 task
@@ -112,10 +115,9 @@ start DateTime, reccurance, planned duration, actual duration
 
 ## Task
 ### View in app
-- Done %
+- Done % / #ToPlan
 - Title
 - Description
-- #ToPlan
 - Start date -> end date
 - Planned time -> actual time
 - Priority

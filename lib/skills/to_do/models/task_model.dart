@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 import '../methods/priority_methods.dart';
 import '../methods/time_methods.dart';
 import '/skills/to_do/enums/priority_enum.dart';
@@ -22,7 +23,7 @@ class Task {
 
   Task({
     this.id = '',
-    required this.title,
+    this.title = '',
     this.description = '',
     this.isDone = false,
     this.priority = Priority.none,
@@ -30,6 +31,9 @@ class Task {
   }) : time = time ?? Time();
 
   TimePeriod get period => time.period;
+
+  PickerDateRange get pickerPeriod =>
+      PickerDateRange(period.plannedStart, null);
 
   bool get isRunning => time.isRunning;
 
