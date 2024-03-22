@@ -18,30 +18,32 @@ class TaskListTile extends StatefulWidget {
 class _TaskListTileState extends State<TaskListTile> {
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      title: Text(widget.task.title),
-      subtitle: timeToShortWidget(widget.task.time),
-      leading: widget.task.isRunning
-          ? IconButton(
-              icon: Icon(
-                Icons.stop_outlined,
-                color: widget.task.priority.color,
+    return InkWell(
+      child: ListTile(
+        title: Text(widget.task.title),
+        subtitle: timeToShortWidget(widget.task.time),
+        leading: widget.task.isRunning
+            ? IconButton(
+                icon: Icon(
+                  Icons.stop_outlined,
+                  color: widget.task.priority.color,
+                ),
+                onPressed: () => setState(() {
+                  widget.task.stop();
+                  widget.completeTask(widget.task.id);
+                }),
+              )
+            : IconButton(
+                icon: Icon(
+                  Icons.play_arrow_outlined,
+                  color: widget.task.priority.color,
+                ),
+                onPressed: () => setState(() => widget.task.start()),
               ),
-              onPressed: () => setState(() {
-                widget.task.stop();
-                widget.completeTask(widget.task.id);
-              }),
-            )
-          : IconButton(
-              icon: Icon(
-                Icons.play_arrow_outlined,
-                color: widget.task.priority.color,
-              ),
-              onPressed: () => setState(() => widget.task.start()),
-            ),
-      trailing: IconButton(
-        icon: const Icon(Icons.delete, color: Colors.red),
-        onPressed: () => widget.deleteTask(widget.task.id),
+        trailing: IconButton(
+          icon: const Icon(Icons.delete, color: Colors.red),
+          onPressed: () => widget.deleteTask(widget.task.id),
+        ),
       ),
     );
   }

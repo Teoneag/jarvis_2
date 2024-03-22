@@ -7,16 +7,16 @@ import '../firestore/firestore_methods.dart';
 import '../models/task_model.dart';
 import '../enums/priority_enum.dart';
 
-class AddTaskDialog extends StatefulWidget {
+class AddEditTaskDialog extends StatefulWidget {
   final Map<String, Task> tasks;
   final int? index; // if null this is a new task
-  const AddTaskDialog(this.tasks, {this.index, super.key});
+  const AddEditTaskDialog(this.tasks, {this.index, super.key});
 
   @override
-  State<AddTaskDialog> createState() => _AddTaskDialogState();
+  State<AddEditTaskDialog> createState() => _AddEditTaskDialogState();
 }
 
-class _AddTaskDialogState extends State<AddTaskDialog> {
+class _AddEditTaskDialogState extends State<AddEditTaskDialog> {
   late final Task _task;
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
@@ -33,6 +33,11 @@ class _AddTaskDialogState extends State<AddTaskDialog> {
       _task = Task();
     } else {
       _task = widget.tasks.values.elementAt(widget.index!);
+      _titleController.text = _task.title;
+      _descriptionController.text = _task.description;
+      _selectedPriority = _task.priority;
+      _dateController.text = timeToShortString(_task.time);
+      _datePickerController.selectedDate = _task.period.plannedStart;
     }
     super.initState();
   }
