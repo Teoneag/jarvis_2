@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:jarvis_2/skills/to_do/methods/priority_methods.dart';
-import 'package:jarvis_2/skills/to_do/methods/time_methods.dart';
+
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
 import '../firestore/firestore_methods.dart';
+import '../methods/time_methods.dart';
 import '../models/task_model.dart';
 import '../enums/priority_enum.dart';
 
 class AddEditTaskDialog extends StatefulWidget {
   final Map<String, Task> tasks;
-  final int? index; // if null this is a new task
+  final int? index; // null <=> new task
   const AddEditTaskDialog(this.tasks, {this.index, super.key});
 
   @override
@@ -20,12 +21,11 @@ class _AddEditTaskDialogState extends State<AddEditTaskDialog> {
   late final Task _task;
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
-  Priority _selectedPriority = Priority.none;
-  final TextEditingController _dateController = TextEditingController();
+  final _dateController = TextEditingController();
+  final _titleFocusNode = FocusNode();
+  final _datePickerController = DateRangePickerController();
   final _formKey = GlobalKey<FormState>();
-  final FocusNode _titleFocusNode = FocusNode();
-  final DateRangePickerController _datePickerController =
-      DateRangePickerController();
+  Priority _selectedPriority = Priority.none;
 
   @override
   void initState() {
@@ -46,30 +46,32 @@ class _AddEditTaskDialogState extends State<AddEditTaskDialog> {
   void dispose() {
     _titleController.dispose();
     _descriptionController.dispose();
+    _dateController.dispose();
     _titleFocusNode.dispose();
+    _datePickerController.dispose();
     super.dispose();
   }
 
   void _submitForm() {
-    if (_formKey.currentState!.validate()) {
-      _task.description = _descriptionController.text;
-      if (widget.index == null) {
-        Firestore.addTask(_task).then((taskId) {
-          if (taskId.isNotEmpty) {
-            _task.id = taskId;
-            widget.tasks.addAll({taskId: _task});
-            Navigator.of(context).pop();
-            _titleController.clear();
-            _descriptionController.clear();
-          }
-        });
-      } else {
-        Firestore.updateTask(_task).then((success) {
-          if (success) {
-            Navigator.of(context).pop();
-          }
-        });
-      }
+    if (!_formKey.currentState!.validate()) return;
+
+    _task.description = _descriptionController.text;
+    if (widget.index == null) {
+      Firestore.addTask(_task).then((taskId) {
+        if (taskId.isEmpty) return;
+
+        _task.id = taskId;
+        widget.tasks.addAll({taskId: _task});
+        _titleController.clear();
+        _descriptionController.clear();
+        Navigator.of(context).pop();
+      });
+    } else {
+      Firestore.updateTask(_task).then((success) {
+        if (success) {
+          Navigator.of(context).pop();
+        }
+      });
     }
   }
 
@@ -97,7 +99,7 @@ class _AddEditTaskDialogState extends State<AddEditTaskDialog> {
                 setState(() {
                   _task.title = value;
                   stringToTime(_task);
-                  stringToPriority(_task);
+                  PriorityMethods.stringToPriority(_task);
                   _datePickerController.selectedDate =
                       _task.period.plannedStart;
                   _dateController.text = timeToShortString(_task.time);
@@ -165,7 +167,7 @@ class _AddEditTaskDialogState extends State<AddEditTaskDialog> {
           ],
         ),
       ),
-      actions: <Widget>[
+      actions: [
         TextButton(
           child: const Text('Cancel'),
           onPressed: () {

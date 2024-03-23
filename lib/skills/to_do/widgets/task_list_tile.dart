@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:jarvis_2/skills/to_do/enums/priority_enum.dart';
 
+import 'package:jarvis_2/skills/to_do/enums/priority_enum.dart';
 import '../methods/time_methods.dart';
 import '../models/task_model.dart';
 

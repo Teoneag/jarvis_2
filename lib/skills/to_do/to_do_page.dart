@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../global/global_variables.dart';
 import '/skills/to_do/widgets/task_list_tile.dart';
-import '/abstracts/page.dart';
+import '../../global/page_abstract.dart';
 import 'dialogs/add_edit_task_dialog.dart';
 import './models/task_model.dart';
 import './firestore/firestore_methods.dart';
@@ -26,22 +27,21 @@ class _ToDoPageState extends State<ToDoPage> {
 
   Future<void> _syncTasks() async {
     if (_isSyncing) return;
+
     setState(() => _isSyncing = true);
     try {
       _tasks = await Firestore.getTasks();
-      setState(() => _isSyncing = false);
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      scaffoldMessengerKey.currentState?.showSnackBar(SnackBar(
         content: Text('Error syncing tasks: $e'),
       ));
-      setState(() => _isSyncing = false);
     }
+    setState(() => _isSyncing = false);
   }
 
   void _showAddEditTaskDialog(int? index) {
-    if (_isDialogOpen) {
-      return;
-    }
+    if (_isDialogOpen) return;
+
     setState(() => _isDialogOpen = true);
     showDialog(
       context: context,
@@ -52,19 +52,6 @@ class _ToDoPageState extends State<ToDoPage> {
         );
       },
     ).then((_) => setState(() => _isDialogOpen = false));
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    HardwareKeyboard.instance.addHandler(_handleKeyPress);
-    _syncTasks();
-  }
-
-  @override
-  void dispose() {
-    HardwareKeyboard.instance.removeHandler(_handleKeyPress);
-    super.dispose();
   }
 
   bool _handleKeyPress(KeyEvent event) {
@@ -78,15 +65,11 @@ class _ToDoPageState extends State<ToDoPage> {
   }
 
   void _deleteTask(String taskId) async {
-    _tasks.remove(taskId);
     try {
+      setState(() => _tasks.remove(taskId));
       await Firestore.deleteTask(taskId);
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text('Task deleted successfully'),
-      ));
-      setState(() {});
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      scaffoldMessengerKey.currentState?.showSnackBar(SnackBar(
         content: Text('Error deleting task: $e'),
       ));
     }
@@ -94,18 +77,26 @@ class _ToDoPageState extends State<ToDoPage> {
 
   void _completeTask(String taskId) async {
     try {
-      Task task = _tasks[taskId]!;
-      _tasks.remove(taskId);
-      await Firestore.updateTask(task);
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text('Task completed successfully'),
-      ));
-      setState(() {});
+      setState(() => _tasks.remove(taskId));
+      await Firestore.updateTask(_tasks[taskId]!);
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      scaffoldMessengerKey.currentState?.showSnackBar(SnackBar(
         content: Text('Error completing task: $e'),
       ));
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    HardwareKeyboard.instance.addHandler(_handleKeyPress);
+    _syncTasks();
+  }
+
+  @override
+  void dispose() {
+    HardwareKeyboard.instance.removeHandler(_handleKeyPress);
+    super.dispose();
   }
 
   @override

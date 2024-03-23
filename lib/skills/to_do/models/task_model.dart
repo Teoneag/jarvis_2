@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:jarvis_2/skills/to_do/methods/priority_methods.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
-import '../methods/priority_methods.dart';
+
 import '../methods/time_methods.dart';
 import '/skills/to_do/enums/priority_enum.dart';
 import 'time_model.dart';
@@ -42,7 +43,7 @@ class Task {
         isDone = false,
         time = Time() {
     stringToTime(this);
-    stringToPriority(this);
+    PriorityMethods.stringToPriority(this);
   }
 
   factory Task.fromFirestore(DocumentSnapshot doc) {
