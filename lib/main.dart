@@ -1,15 +1,18 @@
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import 'abstracts/page.dart';
+import 'package:firebase_core/firebase_core.dart';
+
+import 'global/page_abstract.dart';
 import 'firebase_options.dart';
+import 'global/global_variables.dart';
 import 'home_page.dart';
 import 'skills/notes/notes_page.dart';
 import 'skills/to_do/to_do_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // TODO find a way to make the app load faster, maybe not use this await here
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
@@ -22,6 +25,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      scaffoldMessengerKey: scaffoldMessengerKey,
       title: 'Jarvis 2',
       darkTheme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
@@ -43,7 +47,7 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
-final List<BasePage> _pages = <BasePage>[
+final _pages = [
   const ToDoPage(),
   const HomePage(),
   const NotesPage(),
@@ -53,7 +57,6 @@ class _MyHomePageState extends State<MyHomePage> {
   int _selectedIndex = 1;
 
   void _onItemTapped(int index) {
-    print('mere');
     setState(() {
       _selectedIndex = index;
     });
@@ -86,8 +89,12 @@ class _MyHomePageState extends State<MyHomePage> {
         onTap: _onItemTapped,
         currentIndex: _selectedIndex,
         items: _pages
-            .map((page) => BottomNavigationBarItem(
-                icon: Icon(page.icon), label: page.title))
+            .map(
+              (page) => BottomNavigationBarItem(
+                icon: Icon(page.icon),
+                label: page.title,
+              ),
+            )
             .toList(),
       ),
     );

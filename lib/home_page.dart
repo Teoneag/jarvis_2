@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'abstracts/page.dart';
+
+import 'global/page_abstract.dart';
 
 class HomePage extends BasePage {
   @override
