@@ -1,11 +1,12 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '/firebase_options.dart';
+
 import 'abstracts/page.dart';
-import '/home_page.dart';
-import '/skills/notes/notes_page.dart';
-import '/skills/to_do/to_do_page.dart';
+import 'firebase_options.dart';
+import 'home_page.dart';
+import 'skills/notes/notes_page.dart';
+import 'skills/to_do/to_do_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -52,6 +53,7 @@ class _MyHomePageState extends State<MyHomePage> {
   int _selectedIndex = 1;
 
   void _onItemTapped(int index) {
+    print('mere');
     setState(() {
       _selectedIndex = index;
     });
@@ -59,36 +61,34 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return RawKeyboardListener(
-      focusNode: FocusNode(),
-      autofocus: true,
-      onKey: (event) {
-        if (event.isControlPressed) {
-          if (event.logicalKey == LogicalKeyboardKey.digit1) {
-            _onItemTapped(0);
-          } else if (event.logicalKey == LogicalKeyboardKey.digit2) {
-            _onItemTapped(1);
-          } else if (event.logicalKey == LogicalKeyboardKey.digit3) {
-            _onItemTapped(2);
-          }
-        }
-      },
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text('Jarvis 2'),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Jarvis 2'),
+      ),
+      body: CallbackShortcuts(
+        bindings: {
+          LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.digit1):
+              () => _onItemTapped(0),
+          LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.digit2):
+              () => _onItemTapped(1),
+          LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.digit3):
+              () => _onItemTapped(2),
+        },
+        child: Focus(
+          autofocus: true,
+          child: IndexedStack(
+            index: _selectedIndex,
+            children: _pages,
+          ),
         ),
-        body: IndexedStack(
-          index: _selectedIndex,
-          children: _pages,
-        ),
-        bottomNavigationBar: BottomNavigationBar(
-          onTap: _onItemTapped,
-          currentIndex: _selectedIndex,
-          items: _pages
-              .map((page) => BottomNavigationBarItem(
-                  icon: Icon(page.icon), label: page.title))
-              .toList(),
-        ),
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        onTap: _onItemTapped,
+        currentIndex: _selectedIndex,
+        items: _pages
+            .map((page) => BottomNavigationBarItem(
+                icon: Icon(page.icon), label: page.title))
+            .toList(),
       ),
     );
   }
