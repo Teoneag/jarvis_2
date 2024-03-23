@@ -1,18 +1,20 @@
 ## ToDo
+Tod
+- refactor
 - subtasks
+- ToPlan ToDo without due date or without due time
+- work from phone
+- ordrer by date
+
 - make work for time
   - daily
   - monthly
 - labels for displaying tasks
   - today, upcoming are a sum of labels
-- be able to m
-- ove tasks
+- be able to move tasks
 - sort them automatically by date
 - work for phone
-  - TimePickerSpinner
 - if you hover over date you get more details
-- ToPlan ToDo without due date or without due time
-- Create/view page
 - terminal looking instead of scaffoldmessager
 - highlight time part from task
 - pause task
@@ -20,6 +22,7 @@
 - calendar should show interval, not only dates
 
 ## Done
+- Create/view page
 - edit task when clicking on it
 - show planned time in edit task
 - priority from input parser
