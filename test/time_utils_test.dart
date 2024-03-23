@@ -1,24 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jarvis_2/skills/to_do/methods/time_methods.dart';
 import 'package:jarvis_2/skills/to_do/models/task_model.dart';
-import 'package:jarvis_2/skills/to_do/models/time_model.dart';
-import 'package:jarvis_2/skills/to_do/models/time_period_model.dart';
 
 void main() {
-  DateTime now = DateTime.now();
-  late Time time;
-  late TimePeriod period;
-  late List<String> partsToDelete;
-
-  setUp(() {
-    period = TimePeriod(
-        plannedStart: now,
-        toOrder: true,
-        plannedEnd: now.add(const Duration(days: 1)));
-    time = Time(periods: [period]);
-    partsToDelete = [];
-  });
-
   group('stringToTime', () {
     test('correctly handles "go jim 12 jan 12:00 -> 13:00 p1"', () {
       Task task = Task(title: 'go jim 12 jan 12:00 -> 13:00 p1');

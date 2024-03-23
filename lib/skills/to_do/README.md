@@ -1,10 +1,9 @@
 ## ToDo
 Tod
-- refactor
+- ordrer by date
 - subtasks
 - ToPlan ToDo without due date or without due time
 - work from phone
-- ordrer by date
 
 - make work for time
   - daily
@@ -22,6 +21,7 @@ Tod
 - calendar should show interval, not only dates
 
 ## Done
+- refactor
 - Create/view page
 - edit task when clicking on it
 - show planned time in edit task
