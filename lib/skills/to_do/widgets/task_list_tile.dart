@@ -30,7 +30,7 @@ class _TaskListTileState extends State<TaskListTile> {
                 ),
                 onPressed: () => setState(() {
                   widget.task.stop();
-                  widget.completeTask(widget.task.id);
+                  widget.completeTask();
                 }),
               )
             : IconButton(
@@ -42,7 +42,7 @@ class _TaskListTileState extends State<TaskListTile> {
               ),
         trailing: IconButton(
           icon: const Icon(Icons.delete, color: Colors.red),
-          onPressed: () => widget.deleteTask(widget.task.id),
+          onPressed: () => widget.deleteTask(),
         ),
       ),
     );

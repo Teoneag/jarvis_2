@@ -9,7 +9,7 @@ import '../models/task_model.dart';
 import '../enums/priority_enum.dart';
 
 class AddEditTaskDialog extends StatefulWidget {
-  final Map<String, Task> tasks;
+  final List<Task> tasks;
   final int? index; // null <=> new task
   const AddEditTaskDialog(this.tasks, {this.index, super.key});
 
@@ -32,7 +32,7 @@ class _AddEditTaskDialogState extends State<AddEditTaskDialog> {
     if (widget.index == null) {
       _task = Task();
     } else {
-      _task = widget.tasks.values.elementAt(widget.index!);
+      _task = widget.tasks[widget.index!];
       _titleController.text = _task.title;
       _descriptionController.text = _task.description;
       _selectedPriority = _task.priority;
@@ -59,9 +59,12 @@ class _AddEditTaskDialogState extends State<AddEditTaskDialog> {
     if (widget.index == null) {
       Firestore.addTask(_task).then((taskId) {
         if (taskId.isEmpty) return;
-
         _task.id = taskId;
-        widget.tasks.addAll({taskId: _task});
+        // add in the right place using compareTo
+        final index =
+            widget.tasks.indexWhere((task) => task.compareTo(_task) > 0);
+        widget.tasks.insert(index, _task);
+
         _titleController.clear();
         _descriptionController.clear();
         Navigator.of(context).pop();

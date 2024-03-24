@@ -14,7 +14,7 @@ class TaskFields {
   static const String priority = 'priority';
 }
 
-class Task {
+class Task implements Comparable<Task> {
   String id; // firebase document id
   String title;
   String description;
@@ -84,5 +84,10 @@ class Task {
     }
     time.periods.insert(0, TimePeriod());
     // TODO make the planned dates be calculated from the reccurance gap
+  }
+
+  @override
+  int compareTo(Task other) {
+    return time.compareTo(other.time);
   }
 }

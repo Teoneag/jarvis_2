@@ -1,4 +1,3 @@
-
 import '/skills/to_do/models/time_period_model.dart';
 
 class TimeField {
@@ -6,7 +5,7 @@ class TimeField {
   static const String periods = 'periods';
 }
 
-class Time {
+class Time implements Comparable<Time> {
   List<TimePeriod> periods = []; // 1st period is the current one
   Duration? reccurenceGap;
 
@@ -41,5 +40,22 @@ class Time {
       TimeField.periods: periodsToFirestore,
       TimeField.reccuranceGap: reccurenceGap?.inSeconds,
     };
+  }
+
+  @override
+  int compareTo(Time other) {
+    if (period.plannedStart == null) return 1;
+    if (other.period.plannedStart == null) return -1;
+
+    final aTime = period.plannedStart!;
+    final bTime = other.period.plannedStart!;
+    if (aTime.day == bTime.day &&
+        aTime.month == bTime.month &&
+        aTime.year == bTime.year) {
+      if (period.toOrder == true) return 1;
+      if (other.period.toOrder == true) return -1;
+    }
+
+    return period.plannedStart!.compareTo(other.period.plannedStart!);
   }
 }

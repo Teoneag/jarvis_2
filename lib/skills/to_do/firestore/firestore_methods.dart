@@ -54,20 +54,16 @@ class Firestore {
     }
   }
 
-  static Future<Map<String, Task>> getTasks() async {
+  static Future<List<Task>> getTasks() async {
     try {
       QuerySnapshot querySnapshot = await _firestore
           .collection(_tasks)
           .where(TaskFields.isDone, isEqualTo: false)
           .get();
-      Map<String, Task> tasks = {};
-      for (var doc in querySnapshot.docs) {
-        tasks[doc.id] = Task.fromFirestore(doc);
-      }
-      return tasks;
+      return querySnapshot.docs.map((doc) => Task.fromFirestore(doc)).toList();
     } catch (e) {
       print(e);
-      return {};
+      return [];
     }
   }
 }
