@@ -23,7 +23,7 @@ class ToDoPage extends BasePage {
 class _ToDoPageState extends State<ToDoPage> {
   bool _isDialogOpen = false;
   bool _isSyncing = false;
-  Map<String, Task> _tasks = {};
+  List<Task> _tasks = [];
 
   Future<void> _syncTasks() async {
     if (_isSyncing) return;
@@ -31,6 +31,7 @@ class _ToDoPageState extends State<ToDoPage> {
     setState(() => _isSyncing = true);
     try {
       _tasks = await Firestore.getTasks();
+      _tasks.sort((a, b) => a.compareTo(b));
     } catch (e) {
       scaffoldMessengerKey.currentState?.showSnackBar(SnackBar(
         content: Text('Error syncing tasks: $e'),
@@ -64,10 +65,11 @@ class _ToDoPageState extends State<ToDoPage> {
     return false;
   }
 
-  void _deleteTask(String taskId) async {
+  void _deleteTask(int index) async {
     try {
-      setState(() => _tasks.remove(taskId));
-      await Firestore.deleteTask(taskId);
+      final id = _tasks[index].id;
+      setState(() => _tasks.removeAt(index));
+      await Firestore.deleteTask(id);
     } catch (e) {
       scaffoldMessengerKey.currentState?.showSnackBar(SnackBar(
         content: Text('Error deleting task: $e'),
@@ -75,10 +77,11 @@ class _ToDoPageState extends State<ToDoPage> {
     }
   }
 
-  void _completeTask(String taskId) async {
+  void _completeTask(int index) async {
     try {
-      setState(() => _tasks.remove(taskId));
-      await Firestore.updateTask(_tasks[taskId]!);
+      final task = _tasks[index];
+      setState(() => _tasks.removeAt(index));
+      await Firestore.updateTask(task);
     } catch (e) {
       scaffoldMessengerKey.currentState?.showSnackBar(SnackBar(
         content: Text('Error completing task: $e'),
@@ -105,10 +108,14 @@ class _ToDoPageState extends State<ToDoPage> {
       body: ListView.builder(
         itemCount: _tasks.length,
         itemBuilder: (BuildContext context, int index) {
-          final task = _tasks.values.elementAt(index);
+          final task = _tasks[index];
           return InkWell(
             onTap: () => _showAddEditTaskDialog(index),
-            child: TaskListTile(task, _deleteTask, _completeTask),
+            child: TaskListTile(
+              task,
+              () => _deleteTask(index),
+              () => _completeTask(index),
+            ),
           );
         },
       ),
