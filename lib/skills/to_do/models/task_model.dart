@@ -12,6 +12,7 @@ class TaskFields {
   static const String description = 'description';
   static const String isDone = 'isDone';
   static const String priority = 'priority';
+  static const String subTasks = 'subTasks';
 }
 
 class Task implements Comparable<Task> {
@@ -21,6 +22,7 @@ class Task implements Comparable<Task> {
   bool isDone;
   Priority priority;
   Time time;
+  List<Task> subTasks = [];
 
   Task({
     this.id = '',
@@ -28,8 +30,10 @@ class Task implements Comparable<Task> {
     this.description = '',
     this.isDone = false,
     this.priority = Priority.none,
+    subTasks,
     time,
-  }) : time = time ?? Time();
+  })  : time = time ?? Time(),
+        subTasks = subTasks ?? [];
 
   TimePeriod get period => time.period;
 
@@ -37,14 +41,6 @@ class Task implements Comparable<Task> {
       PickerDateRange(period.plannedStart, null);
 
   bool get isRunning => time.isRunning;
-
-  Task.fromInput(this.title, this.description, this.priority)
-      : id = '',
-        isDone = false,
-        time = Time() {
-    stringToTime(this);
-    PriorityMethods.stringToPriority(this);
-  }
 
   factory Task.fromFirestore(DocumentSnapshot doc) {
     var data = doc.data() as Map<String, dynamic>;
@@ -56,6 +52,9 @@ class Task implements Comparable<Task> {
       isDone: data[TaskFields.isDone],
       priority: Priority.values[data[TaskFields.priority]],
       time: Time.fromFirestore(data),
+      subTasks: (data[TaskFields.subTasks] as List)
+          .map((e) => Task.fromFirestore(e))
+          .toList(), // TODO optimize loading
     );
   }
 
@@ -66,6 +65,7 @@ class Task implements Comparable<Task> {
       TaskFields.isDone: isDone,
       TaskFields.priority: priority.index,
       ...time.toFirestore(),
+      TaskFields.subTasks: subTasks.map((e) => e.id).toList(),
     };
   }
 

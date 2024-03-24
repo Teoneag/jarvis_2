@@ -1,4 +1,7 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter/widgets.dart';
 import 'package:jarvis_2/skills/to_do/methods/priority_methods.dart';
 
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
@@ -11,7 +14,8 @@ import '../enums/priority_enum.dart';
 class AddEditTaskDialog extends StatefulWidget {
   final List<Task> tasks;
   final int? index; // null <=> new task
-  const AddEditTaskDialog(this.tasks, {this.index, super.key});
+  final Task? parentTask;
+  const AddEditTaskDialog(this.tasks, {this.index, this.parentTask, super.key});
 
   @override
   State<AddEditTaskDialog> createState() => _AddEditTaskDialogState();
@@ -26,6 +30,7 @@ class _AddEditTaskDialogState extends State<AddEditTaskDialog> {
   final _datePickerController = DateRangePickerController();
   final _formKey = GlobalKey<FormState>();
   Priority _selectedPriority = Priority.none;
+  bool _isDialogOpen = false;
 
   @override
   void initState() {
@@ -60,10 +65,16 @@ class _AddEditTaskDialogState extends State<AddEditTaskDialog> {
       Firestore.addTask(_task).then((taskId) {
         if (taskId.isEmpty) return;
         _task.id = taskId;
-        // add in the right place using compareTo
-        final index =
+        int index =
             widget.tasks.indexWhere((task) => task.compareTo(_task) > 0);
+        if (index == -1) index = 0;
+        print('inserting at index $index in ${widget.tasks}');
         widget.tasks.insert(index, _task);
+
+        if (widget.parentTask != null) {
+          widget.parentTask!.subTasks.add(_task);
+          Firestore.updateTask(widget.parentTask!);
+        }
 
         _titleController.clear();
         _descriptionController.clear();
@@ -76,6 +87,22 @@ class _AddEditTaskDialogState extends State<AddEditTaskDialog> {
         }
       });
     }
+  }
+
+  void _showAddEditTaskDialog(int? index, Task? parentTask) {
+    if (_isDialogOpen) return;
+
+    setState(() => _isDialogOpen = true);
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AddEditTaskDialog(
+          _task.subTasks,
+          index: index,
+          parentTask: parentTask,
+        );
+      },
+    ).then((_) => setState(() => _isDialogOpen = false));
   }
 
   @override
@@ -136,19 +163,17 @@ class _AddEditTaskDialogState extends State<AddEditTaskDialog> {
                       ))
                   .toList(),
             ),
-            Expanded(
-              child: TextField(
-                controller: _dateController,
-                onSubmitted: (_) => _submitForm,
-                decoration: const InputDecoration(hintText: 'Planned'),
-                onChanged: (value) {
-                  setState(() {
-                    taskToTime(_dateController.text, _task.time, []);
-                    _datePickerController.selectedDate =
-                        _task.period.plannedStart;
-                  });
-                },
-              ),
+            TextField(
+              controller: _dateController,
+              onSubmitted: (_) => _submitForm,
+              decoration: const InputDecoration(hintText: 'Planned'),
+              onChanged: (value) {
+                setState(() {
+                  taskToTime(_dateController.text, _task.time, []);
+                  _datePickerController.selectedDate =
+                      _task.period.plannedStart;
+                });
+              },
             ),
             SizedBox(
               width: 500,
@@ -167,6 +192,31 @@ class _AddEditTaskDialogState extends State<AddEditTaskDialog> {
                 initialSelectedRange: _task.pickerPeriod,
               ),
             ),
+            InkWell(
+              onTap: () => _showAddEditTaskDialog(null, _task),
+              child: const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.add),
+                  Text('Add subtask'),
+                ],
+              ),
+            ),
+            SizedBox(
+              height: 100,
+              width: 100,
+              child: ListView(
+                shrinkWrap: true,
+                children: _task.subTasks
+                    .map((subTask) => ListTile(
+                          title: Text(subTask.title),
+                          onTap: () => _showAddEditTaskDialog(
+                              _task.subTasks.indexOf(subTask), _task),
+                        ))
+                    .toList(),
+              ),
+            ),
+            // TODO show all tasks, completed with strikethrough
           ],
         ),
       ),

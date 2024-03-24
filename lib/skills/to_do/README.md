@@ -1,10 +1,10 @@
 ## ToDo
 Tod
-- ordrer by date
 - subtasks
 - ToPlan ToDo without due date or without due time
 - work from phone
 
+- make task edit nois
 - make work for time
   - daily
   - monthly
@@ -21,6 +21,7 @@ Tod
 - calendar should show interval, not only dates
 
 ## Done
+- ordrer by date
 - refactor
 - Create/view page
 - edit task when clicking on it
