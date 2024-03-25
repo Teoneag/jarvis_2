@@ -205,7 +205,7 @@ class _AddEditTaskDialogState extends State<AddEditTaskDialog> {
                 children: _task.subTasks
                     .map(
                       (subTask) =>
-                          // TaskListTile(subTask, deleteTask, completeTask)
+                          // TODO TaskListTile(subTask, deleteTask, completeTask)
                           ListTile(
                         title: Text(subTask.title),
                         onTap: () => _showAddEditTaskDialog(
@@ -219,18 +219,25 @@ class _AddEditTaskDialogState extends State<AddEditTaskDialog> {
           ],
         ),
       ),
-      actions: [
-        TextButton(
-          child: const Text('Cancel'),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-        ),
-        TextButton(
-          onPressed: _submitForm,
-          child: const Text('Add'),
-        ),
-      ],
+      actions: widget.index != null
+          ? [
+              TextButton(
+                onPressed: _submitForm,
+                child: const Text('Ok'),
+              )
+            ]
+          : [
+              TextButton(
+                child: const Text('Cancel'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+              TextButton(
+                onPressed: _submitForm,
+                child: const Text('Add'),
+              ),
+            ],
     );
   }
 }

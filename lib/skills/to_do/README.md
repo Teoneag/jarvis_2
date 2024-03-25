@@ -1,9 +1,5 @@
 ## ToDo
 Tod
-- subtasks
-  - solve empty subtask
-  - show them nais
-- show ok instead of add and cancell
 - ToPlan ToDo without due date or without due time
 - work from phone
 
@@ -24,6 +20,10 @@ Tod
 - calendar should show interval, not only dates
 
 ## Done
+- show ok instead of add and cancell
+- subtasks
+  - solve empty subtask
+  - show them nais
 - ordrer by date
 - refactor
 - Create/view page
