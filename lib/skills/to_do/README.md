@@ -1,6 +1,9 @@
 ## ToDo
 Tod
 - subtasks
+  - solve empty subtask
+  - show them nais
+- show ok instead of add and cancell
 - ToPlan ToDo without due date or without due time
 - work from phone
 

@@ -1,8 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:jarvis_2/skills/to_do/methods/priority_methods.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
-import '../methods/time_methods.dart';
+import '../firestore/firestore_methods.dart';
 import '/skills/to_do/enums/priority_enum.dart';
 import 'time_model.dart';
 import 'time_period_model.dart';
@@ -12,6 +11,7 @@ class TaskFields {
   static const String description = 'description';
   static const String isDone = 'isDone';
   static const String priority = 'priority';
+  static const String parentTaskId = 'parentTaskId';
   static const String subTasks = 'subTasks';
 }
 
@@ -22,6 +22,7 @@ class Task implements Comparable<Task> {
   bool isDone;
   Priority priority;
   Time time;
+  String? parentTaskId;
   List<Task> subTasks = [];
 
   Task({
@@ -30,6 +31,7 @@ class Task implements Comparable<Task> {
     this.description = '',
     this.isDone = false,
     this.priority = Priority.none,
+    this.parentTaskId,
     subTasks,
     time,
   })  : time = time ?? Time(),
@@ -52,10 +54,20 @@ class Task implements Comparable<Task> {
       isDone: data[TaskFields.isDone],
       priority: Priority.values[data[TaskFields.priority]],
       time: Time.fromFirestore(data),
-      subTasks: (data[TaskFields.subTasks] as List)
-          .map((e) => Task.fromFirestore(e))
-          .toList(), // TODO optimize loading
+      parentTaskId: data[TaskFields.parentTaskId],
+      subTasks:
+          (data[TaskFields.subTasks] as List).map((e) => Task(id: e)).toList(),
     );
+  }
+
+  static Future<void> loadSubTasks(Task task) async {
+    var futures = task.subTasks.map((e) => Firestore.getTask(e.id)).toList();
+
+    var subTasks = await Future.wait(futures);
+
+    task.subTasks.clear();
+
+    task.subTasks.addAll(subTasks.where((e) => e != null).cast<Task>());
   }
 
   Map<String, dynamic> toFirestore() {
@@ -65,6 +77,7 @@ class Task implements Comparable<Task> {
       TaskFields.isDone: isDone,
       TaskFields.priority: priority.index,
       ...time.toFirestore(),
+      TaskFields.parentTaskId: parentTaskId,
       TaskFields.subTasks: subTasks.map((e) => e.id).toList(),
     };
   }

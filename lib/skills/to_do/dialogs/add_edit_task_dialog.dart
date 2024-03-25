@@ -1,11 +1,9 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:flutter/widgets.dart';
-import 'package:jarvis_2/skills/to_do/methods/priority_methods.dart';
+import 'package:jarvis_2/skills/to_do/widgets/task_list_tile.dart';
 
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
+import '../methods/priority_methods.dart';
 import '../firestore/firestore_methods.dart';
 import '../methods/time_methods.dart';
 import '../models/task_model.dart';
@@ -14,8 +12,9 @@ import '../enums/priority_enum.dart';
 class AddEditTaskDialog extends StatefulWidget {
   final List<Task> tasks;
   final int? index; // null <=> new task
-  final Task? parentTask;
-  const AddEditTaskDialog(this.tasks, {this.index, this.parentTask, super.key});
+  final String? parentTaskId;
+  const AddEditTaskDialog(this.tasks,
+      {this.index, this.parentTaskId, super.key});
 
   @override
   State<AddEditTaskDialog> createState() => _AddEditTaskDialogState();
@@ -61,6 +60,8 @@ class _AddEditTaskDialogState extends State<AddEditTaskDialog> {
     if (!_formKey.currentState!.validate()) return;
 
     _task.description = _descriptionController.text;
+    _task.priority = _selectedPriority;
+    _task.parentTaskId = widget.parentTaskId;
     if (widget.index == null) {
       Firestore.addTask(_task).then((taskId) {
         if (taskId.isEmpty) return;
@@ -70,11 +71,6 @@ class _AddEditTaskDialogState extends State<AddEditTaskDialog> {
         if (index == -1) index = 0;
         print('inserting at index $index in ${widget.tasks}');
         widget.tasks.insert(index, _task);
-
-        if (widget.parentTask != null) {
-          widget.parentTask!.subTasks.add(_task);
-          Firestore.updateTask(widget.parentTask!);
-        }
 
         _titleController.clear();
         _descriptionController.clear();
@@ -89,7 +85,7 @@ class _AddEditTaskDialogState extends State<AddEditTaskDialog> {
     }
   }
 
-  void _showAddEditTaskDialog(int? index, Task? parentTask) {
+  void _showAddEditTaskDialog(int? index, String? parentTaskId) {
     if (_isDialogOpen) return;
 
     setState(() => _isDialogOpen = true);
@@ -99,7 +95,7 @@ class _AddEditTaskDialogState extends State<AddEditTaskDialog> {
         return AddEditTaskDialog(
           _task.subTasks,
           index: index,
-          parentTask: parentTask,
+          parentTaskId: parentTaskId,
         );
       },
     ).then((_) => setState(() => _isDialogOpen = false));
@@ -193,7 +189,7 @@ class _AddEditTaskDialogState extends State<AddEditTaskDialog> {
               ),
             ),
             InkWell(
-              onTap: () => _showAddEditTaskDialog(null, _task),
+              onTap: () => _showAddEditTaskDialog(null, _task.id),
               child: const Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -206,13 +202,16 @@ class _AddEditTaskDialogState extends State<AddEditTaskDialog> {
               height: 100,
               width: 100,
               child: ListView(
-                shrinkWrap: true,
                 children: _task.subTasks
-                    .map((subTask) => ListTile(
-                          title: Text(subTask.title),
-                          onTap: () => _showAddEditTaskDialog(
-                              _task.subTasks.indexOf(subTask), _task),
-                        ))
+                    .map(
+                      (subTask) =>
+                          // TaskListTile(subTask, deleteTask, completeTask)
+                          ListTile(
+                        title: Text(subTask.title),
+                        onTap: () => _showAddEditTaskDialog(
+                            _task.subTasks.indexOf(subTask), _task.id),
+                      ),
+                    )
                     .toList(),
               ),
             ),
