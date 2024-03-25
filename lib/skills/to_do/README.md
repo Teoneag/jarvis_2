@@ -1,7 +1,12 @@
 ## ToDo
 Tod
-- ToPlan ToDo without due date or without due time
+- refactor
+  - TasksList widget: _tasks, _showAddEditTaskDialog, _deleteTask, completeTask  -> display
+    - can handle delete, modify, add
+  - be able to 
+  
 - work from phone
+- ToPlan ToDo without due date or without due time
 
 - make task edit nois
 - make work for time

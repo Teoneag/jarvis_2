@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../global/global_variables.dart';
-import '/skills/to_do/widgets/task_list_tile.dart';
 import '../../global/page_abstract.dart';
 import 'dialogs/add_edit_task_dialog.dart';
 import './models/task_model.dart';
 import './firestore/firestore_methods.dart';
+import 'widgets/task_list.dart';
 
 class ToDoPage extends BasePage {
   @override
@@ -108,19 +108,11 @@ class _ToDoPageState extends State<ToDoPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: ListView.builder(
-        itemCount: _tasks.length,
-        itemBuilder: (BuildContext context, int index) {
-          final task = _tasks[index];
-          return InkWell(
-            onTap: () => _showAddEditTaskDialog(index),
-            child: TaskListTile(
-              task,
-              () => _deleteTask(index),
-              () => _completeTask(index),
-            ),
-          );
-        },
+      body: TaskList(
+        _tasks,
+        _deleteTask,
+        _completeTask,
+        _showAddEditTaskDialog,
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showAddEditTaskDialog(null),

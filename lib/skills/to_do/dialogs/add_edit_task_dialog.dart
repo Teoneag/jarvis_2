@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:jarvis_2/skills/to_do/widgets/task_list_tile.dart';
 
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
@@ -8,6 +7,7 @@ import '../firestore/firestore_methods.dart';
 import '../methods/time_methods.dart';
 import '../models/task_model.dart';
 import '../enums/priority_enum.dart';
+import '../widgets/task_list.dart';
 
 class AddEditTaskDialog extends StatefulWidget {
   final List<Task> tasks;
@@ -201,18 +201,10 @@ class _AddEditTaskDialogState extends State<AddEditTaskDialog> {
             SizedBox(
               height: 100,
               width: 100,
-              child: ListView(
-                children: _task.subTasks
-                    .map(
-                      (subTask) =>
-                          // TODO TaskListTile(subTask, deleteTask, completeTask)
-                          ListTile(
-                        title: Text(subTask.title),
-                        onTap: () => _showAddEditTaskDialog(
-                            _task.subTasks.indexOf(subTask), _task.id),
-                      ),
-                    )
-                    .toList(),
+              child: TaskList(
+                _task.subTasks,
+                (index) => _showAddEditTaskDialog(index, _task.id),
+                (index) => _completeTask(index, _task.id),
               ),
             ),
             // TODO show all tasks, completed with strikethrough
