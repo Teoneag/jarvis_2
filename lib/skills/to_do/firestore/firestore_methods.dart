@@ -59,6 +59,7 @@ class Firestore {
       QuerySnapshot querySnapshot = await _firestore
           .collection(_tasks)
           .where(TaskFields.isDone, isEqualTo: false)
+          .where(TaskFields.parentTaskId, isNull: true)
           .get();
       return querySnapshot.docs.map((doc) => Task.fromFirestore(doc)).toList();
     } catch (e) {

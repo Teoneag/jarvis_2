@@ -32,6 +32,9 @@ class _ToDoPageState extends State<ToDoPage> {
     try {
       _tasks = await Firestore.getTasks();
       _tasks.sort((a, b) => a.compareTo(b));
+      for (var task in _tasks) {
+        await Task.loadSubTasks(task);
+      }
     } catch (e) {
       scaffoldMessengerKey.currentState?.showSnackBar(SnackBar(
         content: Text('Error syncing tasks: $e'),
