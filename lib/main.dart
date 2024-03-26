@@ -77,7 +77,6 @@ class _MyHomePageState extends State<MyHomePage> {
               () => _onItemTapped(2),
         },
         child: Focus(
-          autofocus: true,
           child: IndexedStack(
             index: _selectedIndex,
             children: _pages,

@@ -1,8 +1,11 @@
 ## ToDo
 Tod
-- ToPlan ToDo without due date or without due time
+- todoist api
+  
 - work from phone
-
+- ToPlan ToDo without due date or without due time
+- error handeling
+- handle saving empty task
 - make task edit nois
 - make work for time
   - daily
@@ -20,6 +23,8 @@ Tod
 - calendar should show interval, not only dates
 
 ## Done
+- refactor
+  - make ctrl q work: just wrap the child of shortcut in focus with autofocus
 - show ok instead of add and cancell
 - subtasks
   - solve empty subtask
@@ -60,6 +65,7 @@ Keep track of score (hours efficient /hours inneficient)
 + plan next day
 Remind me of bdays + exams some time before
 
+
 ## Tasks operations
 - add a new task
 - modify a task (by id)
@@ -69,7 +75,7 @@ Remind me of bdays + exams some time before
 ## Sync
 - When
   - opening ToDo
-  - adding a new task
+  - adding a new task (when you close the dialog)
   - modifying a task
   - deleting a task
   - refreshing tasks
