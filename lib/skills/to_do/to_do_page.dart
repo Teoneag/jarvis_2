@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:jarvis_2/skills/to_do/widgets/task_list_and_add.dart';
 
 import '../../global/global_variables.dart';
 import '../../global/page_abstract.dart';
-import 'dialogs/add_edit_task_dialog.dart';
 import './models/task_model.dart';
 import './firestore/firestore_methods.dart';
-import 'widgets/task_list.dart';
+import 'widgets/task_list_and_add.dart';
 
 class ToDoPage extends BasePage {
   @override
@@ -23,7 +20,7 @@ class ToDoPage extends BasePage {
 
 class _ToDoPageState extends State<ToDoPage> {
   bool _isSyncing = false;
-  List<Task> _tasks = [];
+  final List<Task> _tasks = [];
 
   Future<void> _syncTasks() async {
     if (_isSyncing) return;
