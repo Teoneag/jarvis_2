@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 
 import '../dialogs/add_edit_task_dialog.dart';
 import '../firestore/firestore_methods.dart';
@@ -44,6 +43,7 @@ class _TaskListAndAddState extends State<TaskListAndAdd> {
           },
         ),
       );
+      if (!mounted) return;
     });
   }
 

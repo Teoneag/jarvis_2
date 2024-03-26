@@ -28,7 +28,6 @@ class _EditTaskDialogState extends State<EditTaskDialog> {
   final _datePickerController = DateRangePickerController();
   final _formKey = GlobalKey<FormState>();
   Priority _selectedPriority = Priority.none;
-  bool _isDialogOpen = false;
 
   @override
   void initState() {
