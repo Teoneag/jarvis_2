@@ -1,11 +1,6 @@
 ## ToDo
 Tod
-- refactor
-  - make ctrl q work
-- flow of data in the app
-  - TasksList widget: _tasks, _showAddEditTaskDialog, _deleteTask, completeTask  -> display
-    - can handle delete, modify, add
-  - todoist api
+- todoist api
   
 - work from phone
 - ToPlan ToDo without due date or without due time
@@ -28,6 +23,8 @@ Tod
 - calendar should show interval, not only dates
 
 ## Done
+- refactor
+  - make ctrl q work: just wrap the child of shortcut in focus with autofocus
 - show ok instead of add and cancell
 - subtasks
   - solve empty subtask

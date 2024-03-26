@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 
 import '../dialogs/add_edit_task_dialog.dart';
 import '../firestore/firestore_methods.dart';
@@ -83,32 +84,31 @@ class _TaskListAndAddState extends State<TaskListAndAdd> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Shortcuts(
-        shortcuts: <LogicalKeySet, Intent>{
-          LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyQ):
-              const ActivateIntent(),
-        },
-        child: Actions(
-          actions: <Type, Action<Intent>>{
-            ActivateIntent: CallbackAction<ActivateIntent>(
-              onInvoke: (intent) => _createTask(),
-              // TODO see if it works nested
-            ),
-          },
-          child: Focus(
-            child: TaskList(
+    return CallbackShortcuts(
+      bindings: {
+        LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyQ):
+            () => _createTask(),
+      },
+      child: Focus(
+        autofocus: true,
+        child: Stack(
+          children: [
+            TaskList(
               _tasks,
               _deleteTask,
               _completeTask,
               _editTask,
             ),
-          ),
+            Positioned(
+              bottom: 16,
+              right: 16,
+              child: FloatingActionButton(
+                onPressed: () => _createTask(),
+                child: const Icon(Icons.add),
+              ),
+            ),
+          ],
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _createTask(),
-        child: const Icon(Icons.add),
       ),
     );
   }
