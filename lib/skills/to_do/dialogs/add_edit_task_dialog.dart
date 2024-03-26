@@ -3,24 +3,21 @@ import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
 import '../methods/priority_methods.dart';
-import '../firestore/firestore_methods.dart';
 import '../methods/time_methods.dart';
 import '../models/task_model.dart';
 import '../enums/priority_enum.dart';
-import '../widgets/task_list.dart';
 
-class AddEditTaskDialog extends StatefulWidget {
-  final List<Task> tasks;
-  final int? index; // null <=> new task
-  final String? parentTaskId;
-  const AddEditTaskDialog(this.tasks,
-      {this.index, this.parentTaskId, super.key});
+class EditTaskDialog extends StatefulWidget {
+  final Task task;
+  final Function closeDialog;
+
+  const EditTaskDialog(this.task, this.closeDialog, {super.key});
 
   @override
-  State<AddEditTaskDialog> createState() => _AddEditTaskDialogState();
+  State<EditTaskDialog> createState() => _EditTaskDialogState();
 }
 
-class _AddEditTaskDialogState extends State<AddEditTaskDialog> {
+class _EditTaskDialogState extends State<EditTaskDialog> {
   late final Task _task;
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
@@ -33,16 +30,12 @@ class _AddEditTaskDialogState extends State<AddEditTaskDialog> {
 
   @override
   void initState() {
-    if (widget.index == null) {
-      _task = Task();
-    } else {
-      _task = widget.tasks[widget.index!];
-      _titleController.text = _task.title;
-      _descriptionController.text = _task.description;
-      _selectedPriority = _task.priority;
-      _dateController.text = timeToShortString(_task.time);
-      _datePickerController.selectedDate = _task.period.plannedStart;
-    }
+    _task = widget.task;
+    _titleController.text = _task.title;
+    _descriptionController.text = _task.description;
+    _selectedPriority = _task.priority;
+    _dateController.text = timeToShortString(_task.time);
+    _datePickerController.selectedDate = _task.period.plannedStart;
     super.initState();
   }
 
@@ -61,44 +54,24 @@ class _AddEditTaskDialogState extends State<AddEditTaskDialog> {
 
     _task.description = _descriptionController.text;
     _task.priority = _selectedPriority;
-    _task.parentTaskId = widget.parentTaskId;
-    if (widget.index == null) {
-      Firestore.addTask(_task).then((taskId) {
-        if (taskId.isEmpty) return;
-        _task.id = taskId;
-        int index =
-            widget.tasks.indexWhere((task) => task.compareTo(_task) > 0);
-        if (index == -1) index = 0;
-        print('inserting at index $index in ${widget.tasks}');
-        widget.tasks.insert(index, _task);
-
-        _titleController.clear();
-        _descriptionController.clear();
-        Navigator.of(context).pop();
-      });
-    } else {
-      Firestore.updateTask(_task).then((success) {
-        if (success) {
-          Navigator.of(context).pop();
-        }
-      });
-    }
+    widget.closeDialog();
   }
 
   void _showAddEditTaskDialog(int? index, String? parentTaskId) {
     if (_isDialogOpen) return;
 
     setState(() => _isDialogOpen = true);
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AddEditTaskDialog(
-          _task.subTasks,
-          index: index,
-          parentTaskId: parentTaskId,
-        );
-      },
-    ).then((_) => setState(() => _isDialogOpen = false));
+    // TODO
+    // showDialog(
+    //   context: context,
+    //   builder: (BuildContext context) {
+    //     return EditTaskDialog(
+    //       _task.subTasks,
+    //       index: index,
+    //       parentTaskId: parentTaskId,
+    //     );
+    //   },
+    // ).then((_) => setState(() => _isDialogOpen = false));
   }
 
   @override
@@ -198,38 +171,25 @@ class _AddEditTaskDialogState extends State<AddEditTaskDialog> {
                 ],
               ),
             ),
-            SizedBox(
-              height: 100,
-              width: 100,
-              child: TaskList(
-                _task.subTasks,
-                (index) => _showAddEditTaskDialog(index, _task.id),
-                (index) => _completeTask(index, _task.id),
-              ),
-            ),
+            // SizedBox(
+            //   height: 100,
+            //   width: 100,
+            //   child: TaskList(
+            //     _task.subTasks,
+            //     (index) => _showAddEditTaskDialog(index, _task.id),
+            //     (index) => _completeTask(index, _task.id),
+            //   ),
+            // ),
             // TODO show all tasks, completed with strikethrough
           ],
         ),
       ),
-      actions: widget.index != null
-          ? [
-              TextButton(
-                onPressed: _submitForm,
-                child: const Text('Ok'),
-              )
-            ]
-          : [
-              TextButton(
-                child: const Text('Cancel'),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-              TextButton(
-                onPressed: _submitForm,
-                child: const Text('Add'),
-              ),
-            ],
+      actions: [
+        TextButton(
+          onPressed: _submitForm,
+          child: const Text('Ok'),
+        )
+      ],
     );
   }
 }

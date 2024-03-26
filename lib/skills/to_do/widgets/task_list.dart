@@ -5,13 +5,15 @@ import 'task_list_tile.dart';
 
 class TaskList extends StatelessWidget {
   final List<Task> _tasks;
-  String 
+  final Future<void> Function(int) deleteTask;
+  final Future<void> Function(int) completeTask;
+  final Future<void> Function(int) editTask;
 
   const TaskList(
     this._tasks,
     this.deleteTask,
     this.completeTask,
-    this.showAddEditTaskDialog, {
+    this.editTask, {
     super.key,
   });
 
@@ -20,11 +22,10 @@ class TaskList extends StatelessWidget {
     return ListView.builder(
       itemCount: _tasks.length,
       itemBuilder: (BuildContext context, int index) {
-        final task = _tasks[index];
         return InkWell(
-          onTap: () => showAddEditTaskDialog(index),
+          onTap: () => editTask(index),
           child: TaskListTile(
-            task,
+            _tasks[index],
             () => deleteTask(index),
             () => completeTask(index),
           ),

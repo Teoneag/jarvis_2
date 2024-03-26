@@ -1,13 +1,16 @@
 ## ToDo
 Tod
 - refactor
+  - make ctrl q work
+- flow of data in the app
   - TasksList widget: _tasks, _showAddEditTaskDialog, _deleteTask, completeTask  -> display
     - can handle delete, modify, add
-  - be able to 
+  - todoist api
   
 - work from phone
 - ToPlan ToDo without due date or without due time
-
+- error handeling
+- handle saving empty task
 - make task edit nois
 - make work for time
   - daily
@@ -65,6 +68,7 @@ Keep track of score (hours efficient /hours inneficient)
 + plan next day
 Remind me of bdays + exams some time before
 
+
 ## Tasks operations
 - add a new task
 - modify a task (by id)
@@ -74,7 +78,7 @@ Remind me of bdays + exams some time before
 ## Sync
 - When
   - opening ToDo
-  - adding a new task
+  - adding a new task (when you close the dialog)
   - modifying a task
   - deleting a task
   - refreshing tasks
