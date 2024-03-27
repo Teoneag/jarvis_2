@@ -51,6 +51,12 @@ void stringToTime(Task task) {
 }
 
 void taskToTime(String input, Time time, List<String> partsToDelete) {
+  if (time.period.plannedStart == null ||
+      time.period.plannedStart!.hour == 0 &&
+          time.period.plannedStart!.minute == 0) {
+    time.period.toOrder = true;
+  }
+
   // 12 jan 12:00 -> 13:00
   if (input.contains(' -> ')) {
     List<String> parts = input.split(' -> ');
@@ -346,9 +352,41 @@ void _stringToDate(Time time, String input, List<String> partsToDelete) {
         break;
     }
 
-    time.period.toOrder = true;
     time.reccurenceGap = null;
 
+    return;
+  }
+
+  // every 5d/w/M/y
+  match = RegExp(r'\bevery (\d+)([dwMy])\b').firstMatch(input);
+  if (match != null) {
+    partsToDelete.add(match.group(0)!);
+    int number = int.parse(match.group(1)!);
+    String unit = match.group(2)!;
+    time.period.plannedStart = DateTime(_now.year, _now.month, _now.day);
+    switch (unit) {
+      case 'd':
+        time.reccurenceGap = Duration(days: 1 * number);
+        break;
+      case 'w':
+        time.reccurenceGap = Duration(days: 7 * number);
+        break;
+      case 'M':
+        time.reccurenceGap = Duration(days: 31 * number);
+        break;
+      case 'y':
+        time.reccurenceGap = Duration(days: 365 * number);
+        break;
+    }
+
+    return;
+  }
+
+  // daily
+  if (input.contains('daily')) {
+    partsToDelete.add('daily');
+    time.period.plannedStart = DateTime(_now.year, _now.month, _now.day);
+    time.reccurenceGap = const Duration(days: 1);
     return;
   }
 

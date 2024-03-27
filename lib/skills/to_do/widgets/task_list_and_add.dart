@@ -57,6 +57,7 @@ class _TaskListAndAddState extends State<TaskListAndAdd> {
           () async {
             await Firestore.updateTask(task);
             setState(() => _tasks[index] = task);
+            Navigator.of(context).pop();
           },
         ),
       );

@@ -155,8 +155,11 @@ class _EditTaskDialogState extends State<EditTaskDialog> {
                         ),
                       ),
                 SizedBox(
-                    height: MediaQuery.of(context).size.height * 0.57,
-                    width: 500,
+                    // height: MediaQuery.of(context).size.height * 0.57,
+                    height: MediaQuery.of(context).size.height * 0.48,
+                    // TODO solve this for web
+                    // width: 500,
+                    width: MediaQuery.of(context).size.width,
                     child: TaskListAndAdd(
                       _task.subTasks,
                       parentTaskId: _task.id,
