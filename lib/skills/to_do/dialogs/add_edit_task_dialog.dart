@@ -37,7 +37,9 @@ class _EditTaskDialogState extends State<EditTaskDialog> {
     _selectedPriority = _task.priority;
     _dateController.text = timeToShortString(_task.time);
     _datePickerController.selectedDate = _task.period.plannedStart;
-    _dateFocusNode.addListener(() => setState(() {}));
+    _dateFocusNode.addListener(() {
+      setState(() {});
+    });
     super.initState();
   }
 
@@ -67,10 +69,10 @@ class _EditTaskDialogState extends State<EditTaskDialog> {
       content: Form(
         key: _formKey,
         child: FractionallySizedBox(
-          heightFactor: 0.9,
+          heightFactor: 1,
           child: SingleChildScrollView(
+            // TODO find a bettwe way to handle column renderFlex overflow when hiding keyboard
             child: Column(
-              mainAxisSize: MainAxisSize.min,
               children: [
                 // TODO show this only when editing, make it work or to plan button if no planned starting date
                 const LinearProgressIndicator(
@@ -122,48 +124,81 @@ class _EditTaskDialogState extends State<EditTaskDialog> {
                           ))
                       .toList(),
                 ),
-                TextField(
-                  controller: _dateController,
-                  onSubmitted: (_) => _submitForm,
-                  focusNode: _dateFocusNode,
-                  decoration: const InputDecoration(hintText: 'Planned'),
-                  onChanged: (value) {
-                    setState(() {
-                      taskToTime(_dateController.text, _task.time, []);
-                      _datePickerController.selectedDate =
-                          _task.period.plannedStart;
-                    });
-                  },
-                ),
-                !_dateFocusNode.hasFocus
-                    ? const SizedBox()
-                    : SizedBox(
-                        width: 500,
-                        height: 400,
-                        // TODO find a way to show all options of dates
-                        child: SfDateRangePicker(
-                          onSelectionChanged: (value) {
-                            if (value.value is PickerDateRange) {
-                              final range = value.value as PickerDateRange;
-                              _task.period.plannedStart = range.startDate;
-                              _task.period.plannedEnd = range.endDate;
+                Stack(
+                  children: [
+                    TextField(
+                      controller: _dateController,
+                      onSubmitted: (_) => _submitForm,
+                      focusNode: _dateFocusNode,
+                      decoration: const InputDecoration(hintText: 'Planned'),
+                      onChanged: (value) {
+                        setState(() {
+                          taskToTime(_dateController.text, _task.time, []);
+                          _datePickerController.selectedDate =
+                              _task.period.plannedStart;
+                        });
+                      },
+                    ),
+                    Positioned(
+                      right: 0,
+                      child: IconButton(
+                        icon: const Icon(Icons.calendar_today),
+                        onPressed: () {
+                          showDatePicker(
+                            context: context,
+                            initialDate: _task.period.plannedStart,
+                            firstDate:
+                                min(DateTime.now(), _task.period.plannedStart),
+                            lastDate:
+                                DateTime.now().add(const Duration(days: 365)),
+                          ).then((value) {
+                            if (value != null) {
+                              setState(() {
+                                _task.period.plannedStart = value;
+                                _dateController.text =
+                                    timeToShortString(_task.time);
+                              });
                             }
-                          },
-                          controller: _datePickerController,
-                          selectionMode: DateRangePickerSelectionMode.single,
-                          initialSelectedRange: _task.pickerPeriod,
-                        ),
+                          });
+                        },
                       ),
+                    ),
+                  ],
+                ),
+                // TODO show this only for pc
+                // !_dateFocusNode.hasFocus
+                //     ? const SizedBox()
+                //     : SizedBox(
+                //         width: 500,
+                //         height: 400,
+                //         // TODO find a way to show all options of dates
+                //         child: SfDateRangePicker(
+                //           onSelectionChanged: (value) {
+                //             if (value.value is PickerDateRange) {
+                //               final range = value.value as PickerDateRange;
+                //               _task.period.plannedStart = range.startDate;
+                //               _task.period.plannedEnd = range.endDate;
+                //             }
+                //           },
+                //           controller: _datePickerController,
+                //           selectionMode: DateRangePickerSelectionMode.single,
+                //           initialSelectedRange: _task.pickerPeriod,
+                //         ),
+                //       ),
                 SizedBox(
-                    // height: MediaQuery.of(context).size.height * 0.57,
-                    height: MediaQuery.of(context).size.height * 0.48,
-                    // TODO solve this for web
-                    // width: 500,
-                    width: MediaQuery.of(context).size.width,
-                    child: TaskListAndAdd(
-                      _task.subTasks,
-                      parentTaskId: _task.id,
-                    )),
+                  // height: MediaQuery.of(context).size.height * 0.57,
+                  // if the keyboard is open, make the height smaller
+                  height: MediaQuery.of(context).size.height * 0.56 -
+                      MediaQuery.of(context).viewInsets.bottom,
+                  // height: MediaQuery.of(context).size.height * 0.48,
+                  // TODO solve this for web
+                  // width: 500,
+                  width: MediaQuery.of(context).size.width,
+                  child: TaskListAndAdd(
+                    _task.subTasks,
+                    parentTaskId: _task.id,
+                  ),
+                ),
                 // TODO show all tasks, completed with strikethrough
               ],
             ),
