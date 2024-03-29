@@ -38,6 +38,18 @@ class TimePeriod {
         actualEnd = time.actualEnd,
         toOrder = time.toOrder;
 
+  void setStartDate(DateTime? date) {
+    if (date == null) return;
+
+    plannedStart = DateTime(
+      date.year,
+      date.month,
+      date.day,
+      plannedStart?.hour ?? 0,
+      plannedStart?.minute ?? 0,
+    );
+  }
+
   Map<String, dynamic> toFirestore() {
     return {
       TimePeriodField.plannedStart: plannedStart,
