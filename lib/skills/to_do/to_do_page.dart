@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../global/global_variables.dart';
 import '../../global/page_abstract.dart';
 import './models/task_model.dart';
 import './firestore/firestore_methods.dart';
-import 'widgets/task_list_and_add.dart';
+import 'widgets/task_list.dart';
 
 class ToDoPage extends BasePage {
   @override
@@ -21,6 +22,7 @@ class ToDoPage extends BasePage {
 class _ToDoPageState extends State<ToDoPage> {
   bool _isSyncing = false;
   final List<Task> _tasks = [];
+  final ChangeNotifier _addTaskNotifier = ChangeNotifier();
 
   Future<void> _syncTasks() async {
     if (_isSyncing) return;
@@ -49,6 +51,24 @@ class _ToDoPageState extends State<ToDoPage> {
 
   @override
   Widget build(BuildContext context) {
-    return TaskListAndAdd(_tasks);
+    return Scaffold(
+      body: CallbackShortcuts(
+        bindings: {
+          LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyQ):
+              _addTaskNotifier.notifyListeners,
+        },
+        child: Focus(
+          autofocus: true,
+          child: TaskList(
+            _tasks,
+            _addTaskNotifier,
+          ),
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _addTaskNotifier.notifyListeners,
+        child: const Icon(Icons.add),
+      ),
+    );
   }
 }

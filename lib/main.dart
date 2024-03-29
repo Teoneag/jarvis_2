@@ -18,6 +18,8 @@ void main() async {
   runApp(const MyApp());
 }
 
+const appName = 'Jarvis 0.2.0+4';
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -25,7 +27,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       scaffoldMessengerKey: scaffoldMessengerKey,
-      title: 'Jarvis 2',
+      title: appName,
       darkTheme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
           seedColor: Colors.deepPurple,
@@ -65,7 +67,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Jarvis 2'),
+        title: const Text(appName),
       ),
       body: CallbackShortcuts(
         bindings: {

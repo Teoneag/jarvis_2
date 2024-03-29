@@ -399,6 +399,11 @@ int _substractDays(DateTime d1, DateTime d2) {
   return truncD1.difference(truncD2).inDays;
 }
 
+DateTime min(DateTime d1, DateTime? d2) {
+  if (d2 == null) return d1;
+  return d1.isBefore(d2) ? d1 : d2;
+}
+
 final _now = DateTime.now();
 
 const _monthMap = {
