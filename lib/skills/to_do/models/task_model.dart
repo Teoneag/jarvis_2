@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
 import '../firestore/firestore_methods.dart';
@@ -103,4 +104,31 @@ class Task implements Comparable<Task> {
   int compareTo(Task other) {
     return time.compareTo(other.time);
   }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is Task &&
+        other.id == id &&
+        other.title == title &&
+        other.description == description &&
+        other.isDone == isDone &&
+        other.priority == priority &&
+        other.time == time &&
+        other.parentTaskId == parentTaskId &&
+        listEquals(other.subTasks, subTasks);
+  }
+
+  @override
+  int get hashCode => Object.hash(
+        id,
+        title,
+        description,
+        isDone,
+        priority,
+        time,
+        parentTaskId,
+        Object.hashAll(subTasks),
+      );
 }
