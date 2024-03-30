@@ -86,8 +86,11 @@ class _TaskListState extends State<TaskList> {
 
   Future<void> _completeTask(int index) async {
     final task = _tasks[index];
-    setState(() => _tasks.removeAt(index));
-    await Firestore.deleteSubTask(widget.parentTaskId!, task.id);
+    if (task.period.plannedEnd != null) {
+      _tasks.removeAt(index);
+      await Firestore.deleteSubTask(widget.parentTaskId!, task.id);
+    }
+    setState(() {});
     // TODO if parentTaskId is not null, show it crossed out
     await Firestore.updateTask(task);
   }

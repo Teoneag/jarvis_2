@@ -29,9 +29,36 @@ class _ToDoPageState extends State<ToDoPage> {
 
     setState(() => _isSyncing = true);
     try {
-      _tasks.clear();
-      _tasks.addAll(await Firestore.getTasks());
-      _tasks.sort((a, b) => a.compareTo(b));
+      var newTasks = await Firestore.getTasks();
+      newTasks.sort((a, b) => a.compareTo(b));
+      final newTasksMap = {for (var task in newTasks) task.id: task};
+
+      // 1. Delete tasks that are not in the new list
+      for (int i = 0; i < _tasks.length; i++) {
+        if (!newTasksMap.containsKey(_tasks[i].id)) {
+          setState(() => _tasks.removeAt(i));
+          i--;
+        }
+      }
+
+      // 2. Update tasks that are in the new list
+      for (int i = 0; i < _tasks.length; i++) {
+        Task newTask = newTasksMap[_tasks[i].id]!;
+        if (_tasks[i] != newTask) {
+          setState(() => _tasks[i] = newTask);
+        }
+      }
+
+      // 3. Add new tasks while keeping the order
+      for (int i = 0; i < newTasks.length; i++) {
+        Task newTask = newTasks[i];
+        if (!_tasks.contains(newTask)) {
+          int index = _tasks.indexWhere((task) => task.compareTo(newTask) > 0);
+          if (index == -1) index = _tasks.length;
+          setState(() => _tasks.insert(index, newTask));
+        }
+      }
+
       for (var task in _tasks) {
         await Task.loadSubTasks(task);
       }
@@ -59,9 +86,35 @@ class _ToDoPageState extends State<ToDoPage> {
         },
         child: Focus(
           autofocus: true,
-          child: TaskList(
-            _tasks,
-            _addTaskNotifier,
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 30),
+                child: Row(
+                  children: [
+                    const Text('Order by '),
+                    const Text('date'), // TODO
+                    const Spacer(),
+                    IconButton(
+                      onPressed: _isSyncing ? null : _syncTasks,
+                      icon: _isSyncing
+                          ? const SizedBox(
+                              width: 24,
+                              height: 24,
+                              child: CircularProgressIndicator(),
+                            )
+                          : const Icon(Icons.sync),
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: TaskList(
+                  _tasks,
+                  _addTaskNotifier,
+                ),
+              ),
+            ],
           ),
         ),
       ),

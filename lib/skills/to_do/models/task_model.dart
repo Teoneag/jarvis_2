@@ -1,4 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
+import 'package:jarvis_2/skills/to_do/methods/time_methods.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
 import '../firestore/firestore_methods.dart';
@@ -83,19 +85,15 @@ class Task implements Comparable<Task> {
   }
 
   void start() {
-    if (time.periods[0].actualStart != null) {
+    if (period.actualStart != null) {
       time.periods.insert(0, TimePeriod());
     }
     time.periods[0].actualStart = DateTime.now();
   }
 
   void stop() {
-    time.periods[0].actualEnd = DateTime.now();
-    if (time.reccurenceGap == null) {
-      isDone = true;
-      return;
-    }
-    time.periods.insert(0, TimePeriod());
+    period.actualEnd = DateTime.now();
+    completeTask(this);
     // TODO make the planned dates be calculated from the reccurance gap
   }
 
@@ -103,4 +101,31 @@ class Task implements Comparable<Task> {
   int compareTo(Task other) {
     return time.compareTo(other.time);
   }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is Task &&
+        other.id == id &&
+        other.title == title &&
+        other.description == description &&
+        other.isDone == isDone &&
+        other.priority == priority &&
+        other.time == time &&
+        other.parentTaskId == parentTaskId &&
+        listEquals(other.subTasks, subTasks);
+  }
+
+  @override
+  int get hashCode => Object.hash(
+        id,
+        title,
+        description,
+        isDone,
+        priority,
+        time,
+        parentTaskId,
+        Object.hashAll(subTasks),
+      );
 }
