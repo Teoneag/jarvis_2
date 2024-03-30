@@ -38,6 +38,39 @@ class Firestore {
     }
   }
 
+  static Future<void> deleteSubTask(
+      String parentTaskId, String subTaskId) async {
+    try {
+      await _firestore.collection(_tasks).doc(parentTaskId).update({
+        TaskFields.subTasks: FieldValue.arrayRemove([subTaskId])
+      });
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  static Future<void> addSubTask(String parentTaskId, String subTaskId) async {
+    try {
+      await _firestore.collection(_tasks).doc(parentTaskId).update({
+        TaskFields.subTasks: FieldValue.arrayUnion([subTaskId])
+      });
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  static Future<void> reorderSubTask(
+      String parentTaskId, List<String> subTasks) async {
+    try {
+      await _firestore
+          .collection(_tasks)
+          .doc(parentTaskId)
+          .update({TaskFields.subTasks: subTasks});
+    } catch (e) {
+      print(e);
+    }
+  }
+
   static Future<Task?> getTask(String taskId) async {
     try {
       DocumentSnapshot docSnapshot =

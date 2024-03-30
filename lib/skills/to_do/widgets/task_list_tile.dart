@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:jarvis_2/skills/to_do/enums/priority_enum.dart';
+import '../firestore/firestore_methods.dart';
 import '../methods/time_methods.dart';
 import '../models/task_model.dart';
 
@@ -28,18 +29,22 @@ class _TaskListTileState extends State<TaskListTile> {
                   Icons.stop_outlined,
                   color: widget.task.priority.color,
                 ),
-                onPressed: () => setState(() {
-                  widget.task.stop();
-                  widget.completeTask();
-                }),
-              )
+                onPressed: () async {
+                  setState(() {
+                    widget.task.stop();
+                    widget.completeTask();
+                  });
+                  await Firestore.updateTask(widget.task);
+                })
             : IconButton(
                 icon: Icon(
                   Icons.play_arrow_outlined,
                   color: widget.task.priority.color,
                 ),
-                onPressed: () => setState(() => widget.task.start()),
-              ),
+                onPressed: () async {
+                  setState(() => widget.task.start());
+                  await Firestore.updateTask(widget.task);
+                }),
         trailing: IconButton(
           icon: const Icon(Icons.delete, color: Colors.red),
           onPressed: () => widget.deleteTask(),

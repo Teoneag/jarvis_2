@@ -213,6 +213,7 @@ class _EditTaskDialogState extends State<EditTaskDialog> {
                       _task.subTasks,
                       _addTaskNotifier,
                       parentTaskId: _task.id,
+                      onDialogClose: _titleFocusNode.requestFocus,
                     ),
                   ),
                   // TODO show all tasks, completed with strikethrough
@@ -222,6 +223,10 @@ class _EditTaskDialogState extends State<EditTaskDialog> {
           ),
         ),
         actions: [
+          TextButton(
+            onPressed: Navigator.of(context).pop,
+            child: const Text('Cancel'),
+          ),
           TextButton(
             onPressed: _submitForm,
             child: const Text('Ok'),
