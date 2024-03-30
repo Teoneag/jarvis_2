@@ -4,6 +4,19 @@ import 'package:intl/intl.dart';
 
 import '../models/task_model.dart';
 import '../models/time_model.dart';
+import '../models/time_period_model.dart';
+
+void completeTask(Task task) {
+  if (task.time.reccurenceGap == null) {
+    task.isDone = true;
+    return;
+  }
+
+  DateTime plannedStart =
+      task.time.period.plannedStart!.add(task.time.reccurenceGap!);
+
+  task.time.periods.insert(0, TimePeriod(plannedStart: plannedStart));
+}
 
 Widget? timeToShortWidget(Time time) {
   String res = timeToShortString(time);
