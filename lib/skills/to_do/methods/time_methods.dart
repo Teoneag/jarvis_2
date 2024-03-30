@@ -58,9 +58,14 @@ void taskToTime(String input, Time time, List<String> partsToDelete) {
   }
 
   // 12 jan 12:00 -> 13:00
-  if (input.contains(' -> ')) {
-    List<String> parts = input.split(' -> ');
-    partsToDelete.add(' -> ');
+  // 12 jan 12:00->13:00
+  if (input.contains('->')) {
+    List<String> parts = input.split('->');
+    if (input.contains(' -> ')) {
+      partsToDelete.add(' -> ');
+    } else {
+      partsToDelete.add('->');
+    }
     _stringToDateTime(time, parts[0], partsToDelete);
     Time end = Time.copy(time);
     _stringToDateTime(end, parts[1], partsToDelete);
