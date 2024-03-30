@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 import '../dialogs/add_edit_task_dialog.dart';
 import '../firestore/firestore_methods.dart';
@@ -10,9 +9,15 @@ class TaskList extends StatefulWidget {
   final List<Task> tasks;
   final ChangeNotifier onCreateTaskChange;
   final String? parentTaskId;
+  final void Function()? onDialogClose;
 
-  const TaskList(this.tasks, this.onCreateTaskChange,
-      {this.parentTaskId, super.key});
+  const TaskList(
+    this.tasks,
+    this.onCreateTaskChange, {
+    this.parentTaskId,
+    this.onDialogClose,
+    super.key,
+  });
   @override
   State<TaskList> createState() => _TaskListState();
 }
@@ -44,7 +49,7 @@ class _TaskListState extends State<TaskList> {
             Navigator.of(context).pop();
           },
         ),
-      );
+      ).then((value) => widget.onDialogClose?.call());
     });
   }
 
@@ -61,7 +66,7 @@ class _TaskListState extends State<TaskList> {
             Navigator.of(context).pop();
           },
         ),
-      );
+      ).then((value) => widget.onDialogClose?.call());
     });
   }
 
