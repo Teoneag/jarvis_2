@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
-import '../methods/priority_methods.dart';
+import '../methods/tags_methods.dart';
 import '../methods/time_methods.dart';
 import '../models/task_model.dart';
 import '../enums/priority_enum.dart';
@@ -95,7 +95,8 @@ class _EditTaskDialogState extends State<EditTaskDialog> {
                     onChanged: (value) {
                       _task.title = value;
                       stringToTime(_task);
-                      PriorityMethods.stringToPriority(_task);
+                      stringToPriority(_task);
+                      stringToToOrder(_task);
                       _datePickerController.selectedDate =
                           _task.period.plannedStart;
                       _dateController.text = timeToShortString(_task.time);

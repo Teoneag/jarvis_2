@@ -51,6 +51,12 @@ class _ToDoPageState extends State<ToDoPage> {
       }
 
       for (var task in _tasks) {
+        if (task.period.plannedStart != null &&
+            task.period.plannedStart!.isBefore(DateTime.now())) {
+          task.period.toOrder = true;
+          setState(() {});
+          await Firestore.updateTask(task);
+        }
         await Task.loadSubTasks(task);
       }
     } catch (e) {
@@ -103,6 +109,7 @@ class _ToDoPageState extends State<ToDoPage> {
                 child: TaskList(
                   _tasks,
                   _addTaskNotifier,
+                  syncTasks: _syncTasks,
                 ),
               ),
             ],

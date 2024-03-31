@@ -129,6 +129,9 @@ void taskToTime(String input, Time time, List<String> partsToDelete) {
 }
 
 String _dateToString(DateTime date, int daysDiff, bool includeTime) {
+  if (daysDiff < 0) {
+    return 'Passed: ${DateFormat(includeTime ? 'd MMM yyyy HH:mm' : 'd MMM yyyy').format(date)}';
+  }
   if (daysDiff == 0) {
     return includeTime ? DateFormat('HH:mm').format(date) : 'tod';
   } else if (daysDiff == 1) {
@@ -258,8 +261,8 @@ void _stringToDate(Time time, String input, List<String> partsToDelete) {
   }
 
   // 12.1
-  match =
-      RegExp(r"\b(3[01]|[12][0-9]|[1-9])\.(1[012]|[1-9])").firstMatch(input);
+  match = RegExp(r"\b(3[01]|[12][0-9]|[1-9])\.(1[012]|[1-9]|0[1-9])")
+      .firstMatch(input);
   if (match != null && match.group(0) != null) {
     partsToDelete.add(match.group(0)!);
     List<String> parts = match.group(0)!.split('.');
@@ -412,8 +415,9 @@ void _stringToDate(Time time, String input, List<String> partsToDelete) {
 }
 
 int _substractDays(DateTime d1, DateTime d2) {
-  DateTime truncD1 = DateTime(d1.year, d1.month, d1.day, 1); // DST fix
-  DateTime truncD2 = DateTime(d2.year, d2.month, d2.day);
+  // time is converted to utc to avoid timezone issues and DST
+  DateTime truncD1 = DateTime.utc(d1.year, d1.month, d1.day);
+  DateTime truncD2 = DateTime.utc(d2.year, d2.month, d2.day);
   return truncD1.difference(truncD2).inDays;
 }
 

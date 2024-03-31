@@ -53,9 +53,17 @@ class _TaskListTileState extends State<TaskListTile> {
                 ),
                 onPressed: _start,
               ),
-        trailing: IconButton(
-          icon: const Icon(Icons.delete, color: Colors.red),
-          onPressed: () => widget.deleteTask(),
+        trailing: IntrinsicWidth(
+          child: Row(
+            children: [
+              if (widget.task.period.toOrder)
+                const Text('#toOrder', style: TextStyle(color: Colors.orange)),
+              IconButton(
+                icon: const Icon(Icons.delete, color: Colors.red),
+                onPressed: () => widget.deleteTask(),
+              ),
+            ],
+          ),
         ),
       ),
     );
