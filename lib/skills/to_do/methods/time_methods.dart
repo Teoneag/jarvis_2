@@ -213,22 +213,22 @@ void _stringToDate(Time time, String input, List<String> partsToDelete) {
   Match? match;
 
   // no date
-  if (input.contains('no date')) {
-    partsToDelete.add('no date');
+  if (input.contains(' no date ')) {
+    partsToDelete.add(' no date ');
     time.period.plannedStart = null;
     time.reccurenceGap = null;
     return;
   }
 
   // tod/tom
-  if (input.contains('tod')) {
-    partsToDelete.add('tod');
+  if (input.contains(' tod ')) {
+    partsToDelete.add(' tod ');
     time.period.plannedStart = DateTime(_now.year, _now.month, _now.day);
     time.reccurenceGap = null;
     return;
   }
-  if (input.contains('tom')) {
-    partsToDelete.add('tom');
+  if (input.contains(' tom ')) {
+    partsToDelete.add(' tom ');
     time.period.plannedStart = DateTime(_now.year, _now.month, _now.day + 1);
     time.reccurenceGap = null;
     return;
