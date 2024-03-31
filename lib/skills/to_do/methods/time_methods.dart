@@ -412,7 +412,7 @@ void _stringToDate(Time time, String input, List<String> partsToDelete) {
 }
 
 int _substractDays(DateTime d1, DateTime d2) {
-  DateTime truncD1 = DateTime(d1.year, d1.month, d1.day);
+  DateTime truncD1 = DateTime(d1.year, d1.month, d1.day, 1); // DST fix
   DateTime truncD2 = DateTime(d2.year, d2.month, d2.day);
   return truncD1.difference(truncD2).inDays;
 }

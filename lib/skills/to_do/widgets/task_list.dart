@@ -86,13 +86,13 @@ class _TaskListState extends State<TaskList> {
 
   Future<void> _completeTask(int index) async {
     final task = _tasks[index];
-    if (task.period.plannedEnd != null) {
-      _tasks.removeAt(index);
-      await Firestore.deleteSubTask(widget.parentTaskId!, task.id);
+    if (task.isDone) {
+      setState(() => _tasks.removeAt(index));
+      if (widget.parentTaskId != null) {
+        await Firestore.deleteSubTask(widget.parentTaskId!, task.id);
+      }
     }
-    setState(() {});
     // TODO if parentTaskId is not null, show it crossed out
-    await Firestore.updateTask(task);
   }
 
   @override
@@ -127,11 +127,10 @@ class _TaskListState extends State<TaskList> {
         );
       },
       onReorder: (int oldIndex, int newIndex) async {
-        setState(() {
-          if (newIndex > oldIndex) newIndex -= 1;
-          final Task item = _tasks.removeAt(oldIndex);
-          _tasks.insert(newIndex, item);
-        });
+        if (newIndex > oldIndex) newIndex -= 1;
+        final Task item = _tasks.removeAt(oldIndex);
+        _tasks.insert(newIndex, item);
+        setState(() {});
         if (widget.parentTaskId != null) {
           await Firestore.reorderSubTask(
               widget.parentTaskId!, _tasks.map((e) => e.id).toList());
