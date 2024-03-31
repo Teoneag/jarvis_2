@@ -39,9 +39,7 @@ class _EditTaskDialogState extends State<EditTaskDialog> {
     _selectedPriority = _task.priority;
     _dateController.text = timeToShortString(_task.time);
     _datePickerController.selectedDate = _task.period.plannedStart;
-    _dateFocusNode.addListener(() {
-      setState(() {});
-    });
+    _dateFocusNode.addListener(() => setState(() {}));
     super.initState();
     _titleFocusNode.requestFocus();
   }
@@ -95,14 +93,13 @@ class _EditTaskDialogState extends State<EditTaskDialog> {
                     focusNode: _titleFocusNode,
                     decoration: const InputDecoration(hintText: 'Title'),
                     onChanged: (value) {
-                      setState(() {
-                        _task.title = value;
-                        stringToTime(_task);
-                        PriorityMethods.stringToPriority(_task);
-                        _datePickerController.selectedDate =
-                            _task.period.plannedStart;
-                        _dateController.text = timeToShortString(_task.time);
-                      });
+                      _task.title = value;
+                      stringToTime(_task);
+                      PriorityMethods.stringToPriority(_task);
+                      _datePickerController.selectedDate =
+                          _task.period.plannedStart;
+                      _dateController.text = timeToShortString(_task.time);
+                      setState(() {});
                     },
                     validator: (value) {
                       if (_task.title.isEmpty) {
@@ -140,11 +137,10 @@ class _EditTaskDialogState extends State<EditTaskDialog> {
                         focusNode: _dateFocusNode,
                         decoration: const InputDecoration(hintText: 'Planned'),
                         onChanged: (value) {
-                          setState(() {
-                            taskToTime(_dateController.text, _task.time, []);
-                            _datePickerController.selectedDate =
-                                _task.period.plannedStart;
-                          });
+                          taskToTime(_dateController.text, _task.time, []);
+                          _datePickerController.selectedDate =
+                              _task.period.plannedStart;
+                          setState(() {});
                         },
                       ),
                       Positioned(
@@ -161,11 +157,10 @@ class _EditTaskDialogState extends State<EditTaskDialog> {
                                   DateTime.now().add(const Duration(days: 365)),
                             ).then((value) {
                               if (value != null) {
-                                setState(() {
-                                  _task.period.setStartDate(value);
-                                  _dateController.text =
-                                      timeToShortString(_task.time);
-                                });
+                                _task.period.setStartDate(value);
+                                _dateController.text =
+                                    timeToShortString(_task.time);
+                                setState(() {});
                               }
                             });
                           },

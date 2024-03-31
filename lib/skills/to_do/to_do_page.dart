@@ -33,29 +33,20 @@ class _ToDoPageState extends State<ToDoPage> {
       newTasks.sort((a, b) => a.compareTo(b));
       final newTasksMap = {for (var task in newTasks) task.id: task};
 
-      // 1. Delete tasks that are not in the new list
+      // remove
       for (int i = 0; i < _tasks.length; i++) {
         if (!newTasksMap.containsKey(_tasks[i].id)) {
-          setState(() => _tasks.removeAt(i));
+          _tasks.removeAt(i);
           i--;
         }
       }
 
-      // 2. Update tasks that are in the new list
-      for (int i = 0; i < _tasks.length; i++) {
-        Task newTask = newTasksMap[_tasks[i].id]!;
-        if (_tasks[i] != newTask) {
-          setState(() => _tasks[i] = newTask);
-        }
-      }
-
-      // 3. Add new tasks while keeping the order
+      // add or update
       for (int i = 0; i < newTasks.length; i++) {
-        Task newTask = newTasks[i];
-        if (!_tasks.contains(newTask)) {
-          int index = _tasks.indexWhere((task) => task.compareTo(newTask) > 0);
-          if (index == -1) index = _tasks.length;
-          setState(() => _tasks.insert(index, newTask));
+        if (i >= _tasks.length) {
+          _tasks.add(newTasks[i]);
+        } else if (newTasks[i] != _tasks[i]) {
+          _tasks[i] = newTasks[i];
         }
       }
 
