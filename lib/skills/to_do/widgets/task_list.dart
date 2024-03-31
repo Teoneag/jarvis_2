@@ -10,12 +10,14 @@ class TaskList extends StatefulWidget {
   final ChangeNotifier onCreateTaskChange;
   final String? parentTaskId;
   final void Function()? onDialogClose;
+  final void Function()? syncTasks;
 
   const TaskList(
     this.tasks,
     this.onCreateTaskChange, {
     this.parentTaskId,
     this.onDialogClose,
+    this.syncTasks,
     super.key,
   });
   @override
@@ -66,7 +68,7 @@ class _TaskListState extends State<TaskList> {
           task,
           () async {
             await Firestore.updateTask(task);
-            setState(() => _tasks[index] = task);
+            widget.syncTasks?.call();
             Navigator.of(context).pop();
           },
         ),
