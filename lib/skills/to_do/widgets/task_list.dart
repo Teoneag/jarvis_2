@@ -115,7 +115,7 @@ class _TaskListState extends State<TaskList> {
       itemBuilder: (BuildContext context, int index) {
         return ReorderableDelayedDragStartListener(
           index: index,
-          key: ValueKey(_tasks[index]),
+          key: ValueKey(_tasks[index].id),
           child: InkWell(
             onTap: () => _editTask(index),
             child: TaskListTile(

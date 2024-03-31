@@ -18,7 +18,7 @@ void main() async {
   runApp(const MyApp());
 }
 
-const appName = 'Jarvis 0.2.0+4';
+const appName = 'Jarvis 0.2.0+5';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
