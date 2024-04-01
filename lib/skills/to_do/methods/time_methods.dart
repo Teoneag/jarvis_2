@@ -79,9 +79,10 @@ void taskToTime(String input, Time time, List<String> partsToDelete) {
     } else {
       partsToDelete.add('->');
     }
-    _stringToDateTime(time, parts[0], partsToDelete);
+    bool ok = _stringToDateTime(time, parts[0], partsToDelete);
     Time end = Time.copy(time);
-    _stringToDateTime(end, parts[1], partsToDelete);
+    ok = ok & _stringToDateTime(end, parts[1], partsToDelete);
+    if (ok == false) partsToDelete.removeLast();
     time.period.plannedEnd = end.period.plannedStart;
   } else if (input.contains(' for ')) {
     // 21 jan 12:00 for 1m/h/d/w/M/y
@@ -146,7 +147,8 @@ String _dateToString(DateTime date, int daysDiff, bool includeTime) {
   }
 }
 
-void _stringToDateTime(Time time, String input, List<String> partsToDelete) {
+// returns true if the input contains a time
+bool _stringToDateTime(Time time, String input, List<String> partsToDelete) {
   // modifies startDateTime, reccurenceGap, toOrder
 
   // in 5m/h
@@ -169,15 +171,17 @@ void _stringToDateTime(Time time, String input, List<String> partsToDelete) {
     time.period.toOrder = false;
     time.reccurenceGap = null;
 
-    return;
+    return true;
   }
 
-  _stringToDate(time, input, partsToDelete);
+  bool res = _stringToDate(time, input, partsToDelete);
 
-  _stringToHoursMins(time, input, partsToDelete);
+  res = res | _stringToHoursMins(time, input, partsToDelete);
+
+  return res;
 }
 
-void _stringToHoursMins(Time time, String input, List<String> partsToDelete) {
+bool _stringToHoursMins(Time time, String input, List<String> partsToDelete) {
   // only modifies startDateTime
 
   // no time
@@ -188,7 +192,7 @@ void _stringToHoursMins(Time time, String input, List<String> partsToDelete) {
       time.period.plannedStart = DateTime(time.period.plannedStart!.year,
           time.period.plannedStart!.month, time.period.plannedStart!.day);
     }
-    return;
+    return true;
   }
 
   // 12:34
@@ -204,34 +208,42 @@ void _stringToHoursMins(Time time, String input, List<String> partsToDelete) {
         time.period.plannedStart!.day,
         int.parse(parts[0]),
         int.parse(parts[1]));
-    return;
+    return true;
   }
+
+  return false;
 }
 
-void _stringToDate(Time time, String input, List<String> partsToDelete) {
+bool _stringToDate(Time time, String input, List<String> partsToDelete) {
   // only modifies startDateTime, reccuranceGap
   Match? match;
 
   // no date
-  if (input.contains('\bno date\b')) {
+  match = RegExp(r'\bno date\b').firstMatch(input);
+  if (match != null) {
     partsToDelete.add('no date');
     time.period.plannedStart = null;
+    time.period.plannedEnd = null;
     time.reccurenceGap = null;
-    return;
+    return true;
   }
 
-  // tod/tom
-  if (input.contains('\btod\b')) {
+  // tod
+  match = RegExp(r"\btod\b").firstMatch(input);
+  if (match != null) {
     partsToDelete.add('tod');
     time.period.plannedStart = DateTime(_now.year, _now.month, _now.day);
     time.reccurenceGap = null;
-    return;
+    return true;
   }
-  if (input.contains('\btom\b')) {
+
+  // tom
+  match = RegExp(r"\btom\b").firstMatch(input);
+  if (match != null) {
     partsToDelete.add('tom');
     time.period.plannedStart = DateTime(_now.year, _now.month, _now.day + 1);
     time.reccurenceGap = null;
-    return;
+    return true;
   }
 
   // 12.1.2024
@@ -243,7 +255,7 @@ void _stringToDate(Time time, String input, List<String> partsToDelete) {
     time.period.plannedStart =
         DateTime(int.parse(parts[2]), int.parse(parts[1]), int.parse(parts[0]));
     time.reccurenceGap = null;
-    return;
+    return true;
   }
 
   // 12 jan 2024
@@ -257,7 +269,7 @@ void _stringToDate(Time time, String input, List<String> partsToDelete) {
     time.period.plannedStart = DateTime(int.parse(parts[2]),
         _monthMap[parts[1].toLowerCase()]!, int.parse(parts[0]));
     time.reccurenceGap = null;
-    return;
+    return true;
   }
 
   // 12.1
@@ -269,7 +281,7 @@ void _stringToDate(Time time, String input, List<String> partsToDelete) {
     time.period.plannedStart =
         DateTime(_now.year, int.parse(parts[1]), int.parse(parts[0]));
     time.reccurenceGap = null;
-    return;
+    return true;
   }
 
   // 12 jan
@@ -283,7 +295,7 @@ void _stringToDate(Time time, String input, List<String> partsToDelete) {
     time.period.plannedStart = DateTime(
         _now.year, _monthMap[parts[1].toLowerCase()]!, int.parse(parts[0]));
     time.reccurenceGap = null;
-    return;
+    return true;
   }
 
   // this 12
@@ -297,7 +309,7 @@ void _stringToDate(Time time, String input, List<String> partsToDelete) {
     time.period.plannedStart =
         DateTime(_now.year, _now.month, int.parse(parts[1]));
     time.reccurenceGap = null;
-    return;
+    return true;
   }
 
   // every 12
@@ -311,7 +323,7 @@ void _stringToDate(Time time, String input, List<String> partsToDelete) {
     time.period.plannedStart =
         DateTime(_now.year, _now.month, int.parse(parts[1]));
     time.reccurenceGap = const Duration(days: 31);
-    return;
+    return true;
   }
 
   // every mon/tue/wed/thu/fri/sat/sun
@@ -328,7 +340,7 @@ void _stringToDate(Time time, String input, List<String> partsToDelete) {
     time.period.plannedStart =
         DateTime(nextWekkDay.year, nextWekkDay.month, nextWekkDay.day);
     time.reccurenceGap = const Duration(days: 7);
-    return;
+    return true;
   }
 
   // mon/tue/wed/thu/fri/sat/sun
@@ -345,7 +357,7 @@ void _stringToDate(Time time, String input, List<String> partsToDelete) {
     time.period.plannedStart =
         DateTime(nextWeekDay.year, nextWeekDay.month, nextWeekDay.day);
     time.reccurenceGap = null;
-    return;
+    return true;
   }
 
   // in 5d/w/M/y
@@ -375,7 +387,7 @@ void _stringToDate(Time time, String input, List<String> partsToDelete) {
 
     time.reccurenceGap = null;
 
-    return;
+    return true;
   }
 
   // every 5d/w/M/y
@@ -400,18 +412,19 @@ void _stringToDate(Time time, String input, List<String> partsToDelete) {
         break;
     }
 
-    return;
+    return true;
   }
 
   // daily
-  if (input.contains('daily')) {
+  match = RegExp(r'\bdaily\b').firstMatch(input);
+  if (match != null) {
     partsToDelete.add('daily');
     time.period.plannedStart = DateTime(_now.year, _now.month, _now.day);
     time.reccurenceGap = const Duration(days: 1);
-    return;
+    return true;
   }
 
-  return;
+  return false;
 }
 
 int _substractDays(DateTime d1, DateTime d2) {
