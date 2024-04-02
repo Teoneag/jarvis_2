@@ -5,12 +5,24 @@ import '/skills/to_do/models/task_model.dart';
 class Firestore {
   static final _firestore = FirebaseFirestore.instance;
   // static const _tasks = 'tasks';
-  static const _tasks = 'tasksTest'; // for testing
+  // static const _tasks = 'tasksTest'; // for testing
+  static const _tasks = 'tasksTest3'; // for testing
 
   static Future<String> addTask(Task task) async {
     try {
       DocumentReference docRef =
           await _firestore.collection(_tasks).add(task.toFirestore());
+      return docRef.id;
+    } catch (e) {
+      print(e);
+      return '';
+    }
+  }
+
+  static Future<String> addTaskWithId(Task task) async {
+    try {
+      DocumentReference docRef = _firestore.collection(_tasks).doc(task.id);
+      await docRef.set(task.toFirestore());
       return docRef.id;
     } catch (e) {
       print(e);

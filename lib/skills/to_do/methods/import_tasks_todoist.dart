@@ -26,23 +26,27 @@ Future<List<dynamic>> fetchTodoistTasks() async {
   }
 }
 
-// TODO solve every Wed 16:00
-
 Future<void> printFirst10Tasks() async {
+  print('Adding buy later task.');
+  Task buyLaterTask = Task(title: 'Buy later'); // TODO pin this task
+  final buyId = await Firestore.addTask(buyLaterTask);
+  print('Added buy later task.');
+
   final tasks = await fetchTodoistTasks();
-  // print('length: ${tasks.length}');
   for (var i = 0; i < tasks.length; i++) {
-    // print(tasks[i]);
     Task task = Task();
     task.title = tasks[i]['content'];
     if (tasks[i]['project_id'] == '2294247462') task.labels.add('bDay');
-    // if (tasks[i]['project_id'] == '2297906084') task.labels.add('work');
-    if (tasks[i]['project_id'] == '2294257831') task.labels.add('toBuy');
+    const toBuyId = '2294257831';
+    if (tasks[i]['project_id'] == toBuyId) {
+      task.parentTaskId = buyId;
+    }
     // TODO find a better way to handle labels
+    task.id = tasks[i]['id'].toString();
     task.description = tasks[i]['description'];
     task.isDone = tasks[i]['is_completed'];
     task.labels.addAll(List<String>.from(tasks[i]['labels']));
-    task.parentTaskId = tasks[i]['parent_id'];
+    task.parentTaskId ??= tasks[i]['parent_id'];
     switch (tasks[i]['priority']) {
       case 4:
         task.priority = Priority.p0;
@@ -62,24 +66,13 @@ Future<void> printFirst10Tasks() async {
           task.time.reccurenceGap = const Duration(days: 365);
         } else {
           taskToTime(dateString, task.time, []);
-          // print('$dateString: ${task.time}');
-          // if (task.time.reccurenceGap != null) {
-          //   print('Reccurence gap: ${task.time.reccurenceGap!.inDays}');
-          // }
         }
       }
     }
     print(task);
-    await Firestore.addTask(task);
-    // print('---');
-  }
-}
-
-// project id: 2294247462 = Birthdays
-
-void main() async {
-  final tasks = await fetchTodoistTasks();
-  for (var task in tasks) {
-    print(task);
+    await Firestore.addTaskWithId(task);
+    if (tasks[i]['project_id'] == toBuyId) {
+      await Firestore.addSubTask(buyId, task.id);
+    }
   }
 }
