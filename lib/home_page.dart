@@ -26,7 +26,7 @@ class _HomePageState extends State<HomePage> {
           const Text('This is a personal assistant app.'),
           TextButton(
             onPressed: () async {
-              await printFirst10Tasks();
+              await importAllTasks();
             },
             child: const Text('Import tasks from Todoist'),
           ),

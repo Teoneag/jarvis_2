@@ -294,6 +294,10 @@ bool _stringToDate(Time time, String input, List<String> partsToDelete) {
     int number = int.parse(match.group(1)!);
     String month = match.group(2)!;
     time.period.plannedStart = DateTime(_now.year, _monthMap[month]!, number);
+    if (time.period.plannedStart!.isBefore(_now)) {
+      time.period.plannedStart =
+          DateTime(_now.year + 1, _monthMap[month]!, number);
+    }
     time.reccurenceGap = const Duration(days: 365);
     return true;
   }
