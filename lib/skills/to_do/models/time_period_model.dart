@@ -59,4 +59,9 @@ class TimePeriod {
       TimePeriodField.toOrder: toOrder,
     };
   }
+
+  @override
+  String toString() {
+    return 'TimePeriod(plannedStart: $plannedStart, actualStart: $actualStart, plannedEnd: $plannedEnd, actualEnd: $actualEnd, toOrder: $toOrder)';
+  }
 }

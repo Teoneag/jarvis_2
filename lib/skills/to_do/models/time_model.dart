@@ -58,4 +58,9 @@ class Time implements Comparable<Time> {
 
     return period.plannedStart!.compareTo(other.period.plannedStart!);
   }
+
+  @override
+  String toString() {
+    return 'Time{periods: $periods, reccurenceGap: $reccurenceGap}';
+  }
 }
