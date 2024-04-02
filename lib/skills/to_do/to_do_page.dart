@@ -31,6 +31,9 @@ class _ToDoPageState extends State<ToDoPage> {
     try {
       var newTasks = await Firestore.getTasks();
       newTasks.sort((a, b) => a.compareTo(b));
+      for (var task in newTasks) {
+        print('${task.period.plannedStart}: ${task.title}');
+      }
       final newTasksMap = {for (var task in newTasks) task.id: task};
 
       // remove
@@ -50,9 +53,12 @@ class _ToDoPageState extends State<ToDoPage> {
         }
       }
 
+      final now = DateTime.now();
+
       for (var task in _tasks) {
         if (task.period.plannedStart != null &&
-            task.period.plannedStart!.isBefore(DateTime.now())) {
+            task.period.plannedStart!
+                .isBefore(DateTime(now.year, now.month, now.day - 1))) {
           task.period.toOrder = true;
           setState(() {});
           await Firestore.updateTask(task);

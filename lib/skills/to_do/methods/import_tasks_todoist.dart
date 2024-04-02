@@ -18,6 +18,7 @@ Future<List<dynamic>> fetchTodoistTasks() async {
 
   if (response.statusCode == 200) {
     print('Successfully fetched tasks.');
+    // print('Response: ${response.body}');
     return json.decode(response.body);
   } else {
     print('Failed to fetch tasks. Status code: ${response.statusCode}');
@@ -75,6 +76,7 @@ Future<void> importAllTasks() async {
       await Firestore.addSubTask(buyId, task.id);
     }
 
+    print(tasks[i]);
     print(task);
   }
 

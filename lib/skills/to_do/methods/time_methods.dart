@@ -139,12 +139,9 @@ String _dateToString(DateTime date, int daysDiff, bool includeTime) {
     return includeTime ? 'tom ${DateFormat('HH:mm').format(date)}' : 'tom';
   } else if (daysDiff <= 7) {
     return DateFormat(includeTime ? 'EEE HH:mm' : 'EEE').format(date);
-  } else if (date.year > _now.year) {
-    return DateFormat(includeTime ? 'd MMM HH:mm' : 'd MMM').format(date);
-  } else {
-    return DateFormat(includeTime ? 'd MMM yyyy HH:mm' : 'd MMM yyyy')
-        .format(date);
   }
+  return DateFormat(includeTime ? 'd MMM yyyy HH:mm' : 'd MMM yyyy')
+      .format(date);
 }
 
 // returns true if the input contains a time
@@ -313,7 +310,8 @@ bool _stringToDate(Time time, String input, List<String> partsToDelete) {
     time.period.plannedStart = DateTime(
         _now.year, _monthMap[parts[1].toLowerCase()]!, int.parse(parts[0]));
     // if the date is in the past, it is assumed to be next year
-    if (time.period.plannedStart!.isBefore(_now)) {
+    if (time.period.plannedStart!
+        .isBefore(DateTime(_now.year, _now.month, _now.day - 1))) {
       time.period.plannedStart = DateTime(_now.year + 1,
           _monthMap[parts[1].toLowerCase()]!, int.parse(parts[0]));
     }
@@ -380,6 +378,10 @@ bool _stringToDate(Time time, String input, List<String> partsToDelete) {
     List<String> parts = match.group(0)!.split(' ');
     time.period.plannedStart =
         DateTime(_now.year, _now.month, int.parse(parts[1]));
+    if (time.period.plannedStart!.isBefore(_now)) {
+      time.period.plannedStart =
+          DateTime(_now.year, _now.month + 1, int.parse(parts[1]));
+    }
     time.reccurenceGap = const Duration(days: 31);
     return true;
   }

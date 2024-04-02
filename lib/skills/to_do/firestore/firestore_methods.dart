@@ -6,7 +6,7 @@ class Firestore {
   static final _firestore = FirebaseFirestore.instance;
   // static const _tasks = 'tasks';
   // static const _tasks = 'tasksTest'; // for testing
-  static const _tasks = 'tasksTest5'; // for testing
+  static const _tasks = 'tasksTest8'; // for testing
 
   static Future<String> addTask(Task task) async {
     try {
