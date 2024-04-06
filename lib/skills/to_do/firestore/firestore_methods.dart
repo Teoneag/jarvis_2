@@ -105,9 +105,13 @@ class Firestore {
       QuerySnapshot querySnapshot = await _firestore
           .collection(_tasks)
           .where(TaskFields.isDone, isEqualTo: false)
-          .where(TaskFields.parentTaskId, isNull: true)
+          // .where(TaskFields.parentTaskId, isNull: true)
           .get();
-      return querySnapshot.docs.map((doc) => Task.fromFirestore(doc)).toList();
+      return querySnapshot.docs
+          .map((doc) => Task.fromFirestore(doc))
+          .where((task) =>
+              task.parentTask == null || task.period.plannedStart != null)
+          .toList();
     } catch (e) {
       print(e);
       return [];

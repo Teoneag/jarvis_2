@@ -41,17 +41,17 @@ Future<void> importAllTasks() async {
     if (tasks[i]['project_id'] == '2294247462') task.labels.add('bDay');
     const toBuyId = '2294257831';
     if (tasks[i]['project_id'] == toBuyId) {
-      task.parentTaskId = buyId;
+      task.parentTask = Task(id: buyId);
     }
     // TODO find a better way to handle labels
     task.id = tasks[i]['id'].toString();
     task.description = tasks[i]['description'];
     task.isDone = tasks[i]['is_completed'];
     task.labels.addAll(List<String>.from(tasks[i]['labels']));
-    if (task.parentTaskId == null) {
-      task.parentTaskId = tasks[i]['parent_id'];
-      if (task.parentTaskId != null) {
-        subtasks.putIfAbsent(task.parentTaskId!, () => []).add(task.id);
+    if (task.parentTask == null) {
+      task.parentTask = Task(id: tasks[i]['parent_id']);
+      if (task.parentTask != null) {
+        subtasks.putIfAbsent(task.parentTask!.id, () => []).add(task.id);
       }
     }
 

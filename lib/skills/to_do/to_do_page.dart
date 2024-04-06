@@ -31,9 +31,6 @@ class _ToDoPageState extends State<ToDoPage> {
     try {
       var newTasks = await Firestore.getTasks();
       newTasks.sort((a, b) => a.compareTo(b));
-      for (var task in newTasks) {
-        print('${task.period.plannedStart}: ${task.title}');
-      }
       final newTasksMap = {for (var task in newTasks) task.id: task};
 
       // remove
@@ -63,7 +60,7 @@ class _ToDoPageState extends State<ToDoPage> {
           setState(() {});
           await Firestore.updateTask(task);
         }
-        await Task.loadSubTasks(task);
+        await Task.loadSubTasksAndParent(task);
       }
     } catch (e) {
       scaffoldMessengerKey.currentState?.showSnackBar(SnackBar(

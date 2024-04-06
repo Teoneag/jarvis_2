@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../dialogs/add_edit_task_dialog.dart';
+import '../dialogs/edit_task_dialog.dart';
 import '../firestore/firestore_methods.dart';
 import '../models/task_model.dart';
 import 'task_list_tile.dart';
@@ -38,7 +38,10 @@ class _TaskListState extends State<TaskList> {
 
   Future<void> _createTask() async {
     openDialog(() async {
-      Task newTask = Task(parentTaskId: widget.parentTaskId);
+      Task newTask = Task(
+          parentTask: widget.parentTaskId != null
+              ? Task(id: widget.parentTaskId!)
+              : null);
       await showDialog(
         context: context,
         builder: (context) => EditTaskDialog(
