@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
+import '../firestore/firestore_methods.dart';
 import '../methods/tags_methods.dart';
 import '../methods/time_methods.dart';
 import '../models/task_model.dart';
@@ -64,6 +65,19 @@ class _EditTaskDialogState extends State<EditTaskDialog> {
     widget.closeDialog();
   }
 
+  Future<void> _showParentTask() async {
+    await showDialog(
+      context: context,
+      builder: (context) => EditTaskDialog(
+        _task.parentTask!,
+        () async {
+          await Firestore.updateTask(_task.parentTask!);
+          Navigator.of(context).pop();
+        },
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return CallbackShortcuts(
@@ -80,6 +94,14 @@ class _EditTaskDialogState extends State<EditTaskDialog> {
               // TODO find a bettwe way to handle column renderFlex overflow when hiding keyboard
               child: Column(
                 children: [
+                  if (_task.parentTask != null)
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: TextButton(
+                        onPressed: _showParentTask,
+                        child: Text(_task.parentTask!.title),
+                      ),
+                    ),
                   // TODO show this only when editing, make it work or to plan button if no planned starting date
                   const LinearProgressIndicator(
                     value: 0.5,

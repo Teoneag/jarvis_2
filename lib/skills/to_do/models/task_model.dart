@@ -14,7 +14,8 @@ class TaskFields {
   static const String isDone = 'isDone';
   static const String priority = 'priority';
   static const String parentTaskId = 'parentTaskId';
-  static const String subTasks = 'subTasks';
+  static const String subTasks = 'subTasks'; // TODO name this subTasksIds
+  static const String labels = 'labels';
 }
 
 class Task implements Comparable<Task> {
@@ -24,8 +25,9 @@ class Task implements Comparable<Task> {
   bool isDone;
   Priority priority;
   Time time;
-  String? parentTaskId;
+  Task? parentTask;
   List<Task> subTasks = [];
+  List<String> labels = [];
 
   Task({
     this.id = '',
@@ -33,11 +35,13 @@ class Task implements Comparable<Task> {
     this.description = '',
     this.isDone = false,
     this.priority = Priority.none,
-    this.parentTaskId,
-    subTasks,
+    this.parentTask,
     time,
+    subTasks,
+    labels,
   })  : time = time ?? Time(),
-        subTasks = subTasks ?? [];
+        subTasks = subTasks ?? [],
+        labels = labels ?? [];
 
   TimePeriod get period => time.period;
 
@@ -56,13 +60,18 @@ class Task implements Comparable<Task> {
       isDone: data[TaskFields.isDone],
       priority: Priority.values[data[TaskFields.priority]],
       time: Time.fromFirestore(data),
-      parentTaskId: data[TaskFields.parentTaskId],
+      parentTask: data[TaskFields.parentTaskId] != null
+          ? Task(id: data[TaskFields.parentTaskId])
+          : null,
       subTasks:
           (data[TaskFields.subTasks] as List).map((e) => Task(id: e)).toList(),
+      labels: data[TaskFields.labels] == null
+          ? <String>[]
+          : List<String>.from(data[TaskFields.labels]),
     );
   }
 
-  static Future<void> loadSubTasks(Task task) async {
+  static Future<void> loadSubTasksAndParent(Task task) async {
     var futures = task.subTasks.map((e) => Firestore.getTask(e.id)).toList();
 
     var subTasks = await Future.wait(futures);
@@ -70,6 +79,10 @@ class Task implements Comparable<Task> {
     task.subTasks.clear();
 
     task.subTasks.addAll(subTasks.where((e) => e != null).cast<Task>());
+
+    if (task.parentTask != null) {
+      task.parentTask = await Firestore.getTask(task.parentTask!.id);
+    }
   }
 
   Map<String, dynamic> toFirestore() {
@@ -79,8 +92,9 @@ class Task implements Comparable<Task> {
       TaskFields.isDone: isDone,
       TaskFields.priority: priority.index,
       ...time.toFirestore(),
-      TaskFields.parentTaskId: parentTaskId,
+      TaskFields.parentTaskId: parentTask?.id,
       TaskFields.subTasks: subTasks.map((e) => e.id).toList(),
+      TaskFields.labels: labels,
     };
   }
 
@@ -93,6 +107,8 @@ class Task implements Comparable<Task> {
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
 
+    // TODO this may make infinite loop
+
     return other is Task &&
         other.id == id &&
         other.title == title &&
@@ -100,7 +116,7 @@ class Task implements Comparable<Task> {
         other.isDone == isDone &&
         other.priority == priority &&
         other.time == time &&
-        other.parentTaskId == parentTaskId &&
+        other.parentTask == parentTask &&
         listEquals(other.subTasks, subTasks);
   }
 
@@ -112,7 +128,12 @@ class Task implements Comparable<Task> {
         isDone,
         priority,
         time,
-        parentTaskId,
+        parentTask,
         Object.hashAll(subTasks),
       );
+
+  @override
+  String toString() {
+    return 'Task(id: $id, title: $title, description: $description, isDone: $isDone, priority: $priority, time: $time, parentTask: $parentTask, subTasks: $subTasks, labels: $labels)';
+  }
 }

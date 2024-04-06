@@ -139,12 +139,9 @@ String _dateToString(DateTime date, int daysDiff, bool includeTime) {
     return includeTime ? 'tom ${DateFormat('HH:mm').format(date)}' : 'tom';
   } else if (daysDiff <= 7) {
     return DateFormat(includeTime ? 'EEE HH:mm' : 'EEE').format(date);
-  } else if (daysDiff <= 365) {
-    return DateFormat(includeTime ? 'd MMM HH:mm' : 'd MMM').format(date);
-  } else {
-    return DateFormat(includeTime ? 'd MMM yyyy HH:mm' : 'd MMM yyyy')
-        .format(date);
   }
+  return DateFormat(includeTime ? 'd MMM yyyy HH:mm' : 'd MMM yyyy')
+      .format(date);
 }
 
 // returns true if the input contains a time
@@ -284,6 +281,24 @@ bool _stringToDate(Time time, String input, List<String> partsToDelete) {
     return true;
   }
 
+  // every 2 jan
+  match = RegExp(
+          r'\bevery (\d+) (jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)\b',
+          caseSensitive: false)
+      .firstMatch(input);
+  if (match != null) {
+    partsToDelete.add(match.group(0)!);
+    int number = int.parse(match.group(1)!);
+    String month = match.group(2)!;
+    time.period.plannedStart = DateTime(_now.year, _monthMap[month]!, number);
+    if (time.period.plannedStart!.isBefore(_now)) {
+      time.period.plannedStart =
+          DateTime(_now.year + 1, _monthMap[month]!, number);
+    }
+    time.reccurenceGap = const Duration(days: 365);
+    return true;
+  }
+
   // 12 jan
   match = RegExp(
     r"\b(3[01]|[12][0-9]|[1-9])\s(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)\b",
@@ -294,6 +309,12 @@ bool _stringToDate(Time time, String input, List<String> partsToDelete) {
     List<String> parts = match.group(0)!.split(' ');
     time.period.plannedStart = DateTime(
         _now.year, _monthMap[parts[1].toLowerCase()]!, int.parse(parts[0]));
+    // if the date is in the past, it is assumed to be next year
+    if (time.period.plannedStart!
+        .isBefore(DateTime(_now.year, _now.month, _now.day - 1))) {
+      time.period.plannedStart = DateTime(_now.year + 1,
+          _monthMap[parts[1].toLowerCase()]!, int.parse(parts[0]));
+    }
     time.reccurenceGap = null;
     return true;
   }
@@ -312,6 +333,41 @@ bool _stringToDate(Time time, String input, List<String> partsToDelete) {
     return true;
   }
 
+  // every 5d/w/M/y/days/weeks/months/years
+  match = RegExp(
+          r'\bevery (\d+)\s*(d|day|days|w|week|weeks|M|month|months|y|year|years)\b')
+      .firstMatch(input);
+  if (match != null) {
+    partsToDelete.add(match.group(0)!);
+    int number = int.parse(match.group(1)!);
+    String unit = match.group(2)!;
+    time.period.plannedStart = DateTime(_now.year, _now.month, _now.day);
+    switch (unit) {
+      case 'd':
+      case 'day':
+      case 'days':
+        time.reccurenceGap = Duration(days: 1 * number);
+        break;
+      case 'w':
+      case 'week':
+      case 'weeks':
+        time.reccurenceGap = Duration(days: 7 * number);
+        break;
+      case 'M':
+      case 'month':
+      case 'months':
+        time.reccurenceGap = Duration(days: 31 * number);
+        break;
+      case 'y':
+      case 'year':
+      case 'years':
+        time.reccurenceGap = Duration(days: 365 * number);
+        break;
+    }
+
+    return true;
+  }
+
   // every 12
   match = RegExp(
     r"\bevery\s(3[01]|[12][0-9]|[1-9])\b",
@@ -322,6 +378,10 @@ bool _stringToDate(Time time, String input, List<String> partsToDelete) {
     List<String> parts = match.group(0)!.split(' ');
     time.period.plannedStart =
         DateTime(_now.year, _now.month, int.parse(parts[1]));
+    if (time.period.plannedStart!.isBefore(_now)) {
+      time.period.plannedStart =
+          DateTime(_now.year, _now.month + 1, int.parse(parts[1]));
+    }
     time.reccurenceGap = const Duration(days: 31);
     return true;
   }
@@ -333,12 +393,30 @@ bool _stringToDate(Time time, String input, List<String> partsToDelete) {
   ).firstMatch(input);
   if (match != null) {
     partsToDelete.add(match.group(0)!);
-    int day = _weekDayMap[match.group(1)!]!;
+    int day = _weekDayMap[match.group(1)!.toLowerCase()]!;
     int daysDiff = day - _now.weekday;
     if (daysDiff < 0) daysDiff += 7;
     final nextWekkDay = _now.add(Duration(days: daysDiff));
     time.period.plannedStart =
         DateTime(nextWekkDay.year, nextWekkDay.month, nextWekkDay.day);
+    time.reccurenceGap = const Duration(days: 7);
+    return true;
+  }
+
+  // every last mon/tue/wed/thu/fri/sat/sun
+  // TODO store the data that is the last day of the month
+  match = RegExp(
+    r"\bevery last (mon|tue|wed|thu|fri|sat|sun)\b",
+    caseSensitive: false,
+  ).firstMatch(input);
+  if (match != null) {
+    partsToDelete.add(match.group(0)!);
+    int day = _weekDayMap[match.group(1)!]!;
+    int daysDiff = day - _now.weekday;
+    if (daysDiff < 0) daysDiff += 7;
+    final nextWeekDay = _now.add(Duration(days: daysDiff));
+    time.period.plannedStart =
+        DateTime(nextWeekDay.year, nextWeekDay.month, nextWeekDay.day);
     time.reccurenceGap = const Duration(days: 7);
     return true;
   }
@@ -390,37 +468,31 @@ bool _stringToDate(Time time, String input, List<String> partsToDelete) {
     return true;
   }
 
-  // every 5d/w/M/y
-  match = RegExp(r'\bevery (\d+)([dwMy])\b').firstMatch(input);
-  if (match != null) {
-    partsToDelete.add(match.group(0)!);
-    int number = int.parse(match.group(1)!);
-    String unit = match.group(2)!;
-    time.period.plannedStart = DateTime(_now.year, _now.month, _now.day);
-    switch (unit) {
-      case 'd':
-        time.reccurenceGap = Duration(days: 1 * number);
-        break;
-      case 'w':
-        time.reccurenceGap = Duration(days: 7 * number);
-        break;
-      case 'M':
-        time.reccurenceGap = Duration(days: 31 * number);
-        break;
-      case 'y':
-        time.reccurenceGap = Duration(days: 365 * number);
-        break;
-    }
-
-    return true;
-  }
-
   // daily
   match = RegExp(r'\bdaily\b').firstMatch(input);
   if (match != null) {
     partsToDelete.add('daily');
     time.period.plannedStart = DateTime(_now.year, _now.month, _now.day);
     time.reccurenceGap = const Duration(days: 1);
+    return true;
+  }
+
+  // every day
+  match = RegExp(r'\bevery day\b').firstMatch(input);
+  if (match != null) {
+    partsToDelete.add('every day');
+    time.period.plannedStart = DateTime(_now.year, _now.month, _now.day);
+    time.reccurenceGap = const Duration(days: 1);
+    return true;
+  }
+
+  // every last day
+  // TODO store the data that is the last day of the month
+  match = RegExp(r'\bevery last day\b').firstMatch(input);
+  if (match != null) {
+    partsToDelete.add('every last day');
+    time.period.plannedStart = DateTime(_now.year, _now.month + 1, 0);
+    time.reccurenceGap = const Duration(days: 31);
     return true;
   }
 
@@ -451,6 +523,7 @@ const _monthMap = {
   'jul': 7,
   'aug': 8,
   'sep': 9,
+  'sept': 9,
   'oct': 10,
   'nov': 11,
   'dec': 12,
